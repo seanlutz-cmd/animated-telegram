@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Practice — SpeedGrader Review</title>
+  <script src="https://lti.testyturtle.dev/public/zest-bridge.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      padding: 12px;
+    }
+
+    .container { max-width: 680px; margin: 0 auto; }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.09);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Student header ─────────────────────────────────────────── */
+    .student-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .submitted-at {
+      font-size: 0.78rem;
+      color: #888;
+      margin-top: 3px;
+    }
+    .score-badge {
+      text-align: center;
+      background: #0770A2;
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 16px;
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+    .score-badge.grade-a { background: #1a8f50; }
+    .score-badge.grade-b { background: #0770A2; }
+    .score-badge.grade-c { background: #d97706; }
+    .score-badge.grade-f { background: #c0392b; }
+    .score-badge .sb-val { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+    .score-badge .sb-max { font-size: 0.7rem; opacity: .8; margin-top: 2px; }
+
+    /* ── Section labels ─────────────────────────────────────────── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    /* ── Stats grid ─────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #f7f9fc;
+      border: 1px solid #dde3ea;
+      border-radius: 8px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-card .sv {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0770A2;
+      line-height: 1;
+    }
+    .stat-card .sl {
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    /* ── Details table ──────────────────────────────────────────── */
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+    }
+    .detail-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #888;
+      padding: 5px 8px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .detail-table td {
+      padding: 8px;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    .detail-table td.val {
+      text-align: right;
+      font-weight: 700;
+      color: #0770A2;
+    }
+
+    /* ── Score note ─────────────────────────────────────────────── */
+    .score-note {
+      background: #eaf4fb;
+      border: 1px solid #b8d9ed;
+      border-radius: 7px;
+      padding: 11px 13px;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: #2c5f7a;
+      white-space: pre-line;
+    }
+    .score-note.warn-note {
+      background: #fff8e1;
+      border-color: #ffe082;
+      color: #7a5c00;
+    }
+
+    /* ── Context bar ────────────────────────────────────────────── */
+    .context-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .context-pill {
+      background: #f0f4f8;
+      border: 1px solid #dde3ea;
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    .context-pill strong { color: #1a202c; }
+
+    /* ── Error / loading states ─────────────────────────────────── */
+    .info-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Loading state -->
+  <div class="card" id="loading-card">
+    <div class="info-msg">Loading submission&hellip;</div>
+  </div>
+
+  <!-- Main review card (hidden until loaded) -->
+  <div id="main-review" style="display:none">
+
+    <!-- Student + Score header -->
+    <div class="card">
+      <div class="student-header">
+        <div>
+          <div class="student-name" id="rv-name">Student</div>
+          <div class="submitted-at" id="rv-time"></div>
+        </div>
+        <div class="score-badge" id="rv-badge">
+          <div class="sb-val" id="rv-score">—</div>
+          <div class="sb-max">/ 100</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats overview -->
+    <div class="card">
+      <div class="section-label">Performance Summary</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="sv" id="rv-wpm">—</div>
+          <div class="sl">WPM</div>
+        </div>
+        <div class="stat-card">
+          <div class="sv" id="rv-acc">—</div>
+          <div class="sl">Accuracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="sv" id="rv-dur">—</div>
+          <div class="sl">Duration</div>
+        </div>
+      </div>
+
+      <div class="section-label">Detail</div>
+      <table class="detail-table">
+        <thead>
+          <tr><th>Metric</th><th style="text-align:right">Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Errors</td><td class="val" id="rv-errs">—</td></tr>
+          <tr><td>Keys Typed</td><td class="val" id="rv-keys">—</td></tr>
+          <tr><td>Target WPM</td><td class="val" id="rv-target-wpm">—</td></tr>
+          <tr><td>Min. Accuracy</td><td class="val" id="rv-min-acc">—</td></tr>
+          <tr><td>Time Limit</td><td class="val" id="rv-time-limit">—</td></tr>
+          <tr><td>Passage</td><td class="val" id="rv-passage">—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="score-note" id="rv-breakdown"></div>
+    </div>
+
+    <!-- Assignment context -->
+    <div class="card">
+      <div class="section-label">Assignment Context</div>
+      <div class="context-row" id="rv-context"></div>
+    </div>
+
+  </div><!-- /main-review -->
+
+  <!-- Error card (hidden until needed) -->
+  <div class="card" id="error-card" style="display:none">
+    <div class="info-msg" id="error-msg">No submission data found.</div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  Zest.onReady(function () {
+    document.getElementById('loading-card').style.display = 'none';
+
+    if (!Zest.isReviewMode()) {
+      showError('This page is only available in SpeedGrader review mode.');
+      return;
+    }
+
+    var sub = Zest.getSubmission();
+    if (!sub) {
+      showError('No submission found for this student.');
+      return;
+    }
+
+    var artifacts = sub.artifacts || {};
+    var stats     = artifacts.stats || {};
+
+    /* ── Student header ─────────────────────────────────────────── */
+    document.getElementById('rv-name').textContent = esc(sub.userName || 'Student');
+
+    var subTime = '';
+    if (sub.submittedAt) {
+      try {
+        subTime = 'Submitted ' + new Date(sub.submittedAt).toLocaleString();
+      } catch (e) {
+        subTime = 'Submitted ' + sub.submittedAt;
+      }
+    }
+    document.getElementById('rv-time').textContent = subTime;
+
+    /* ── Score badge ────────────────────────────────────────────── */
+    var score = sub.score !== null && sub.score !== undefined ? sub.score : '—';
+    var badge = document.getElementById('rv-badge');
+    document.getElementById('rv-score').textContent = score;
+    if (typeof score === 'number') {
+      badge.className = 'score-badge ' +
+        (score >= 90 ? 'grade-a' : score >= 70 ? 'grade-b' : score >= 50 ? 'grade-c' : 'grade-f');
+    }
+
+    /* ── Stats overview ─────────────────────────────────────────── */
+    document.getElementById('rv-wpm').textContent = stats.wpm !== undefined ? stats.wpm : '—';
+    document.getElementById('rv-acc').textContent = stats.accuracy !== undefined ? stats.accuracy + '%' : '—';
+    document.getElementById('rv-dur').textContent = stats.durationSeconds !== undefined
+      ? fmtDuration(stats.durationSeconds) : '—';
+
+    /* ── Detail table ───────────────────────────────────────────── */
+    document.getElementById('rv-errs').textContent    = stats.errors    !== undefined ? stats.errors    : '—';
+    document.getElementById('rv-keys').textContent    = stats.keysTyped !== undefined ? stats.keysTyped : '—';
+
+    var targetWpm   = artifacts.targetWpm   || '—';
+    var minAccuracy = artifacts.minAccuracy || '—';
+    var timeLimit   = artifacts.timeLimit   || '—';
+    var passageTitle = artifacts.passageTitle || artifacts.passageKey || '—';
+
+    document.getElementById('rv-target-wpm').textContent  = targetWpm + (targetWpm !== '—' ? ' WPM' : '');
+    document.getElementById('rv-min-acc').textContent      = minAccuracy + (minAccuracy !== '—' ? '%' : '');
+    document.getElementById('rv-time-limit').textContent   = timeLimit + (timeLimit !== '—' ? ' s' : '');
+    document.getElementById('rv-passage').textContent      = esc(passageTitle);
+
+    /* ── Score breakdown note ───────────────────────────────────── */
+    if (stats.wpm !== undefined && typeof targetWpm === 'number') {
+      var wpmPts = Math.round(Math.min(stats.wpm / targetWpm, 1) * 60);
+      var accPts = Math.round((stats.accuracy / 100) * 40);
+      var note   = 'Score breakdown:\n' +
+        '  Speed    (' + stats.wpm + ' / ' + targetWpm + ' WPM) \u2192 ' + wpmPts + ' / 60 pts\n' +
+        '  Accuracy (' + stats.accuracy + '%) \u2192 ' + accPts + ' / 40 pts';
+      var noteEl = document.getElementById('rv-breakdown');
+      if (typeof minAccuracy === 'number' && stats.accuracy < minAccuracy) {
+        note += '\n\u26A0\uFE0F Accuracy below ' + minAccuracy + '% minimum \u2014 score was reduced.';
+        noteEl.className = 'score-note warn-note';
+      }
+      noteEl.textContent = note;
+    } else {
+      document.getElementById('rv-breakdown').style.display = 'none';
+    }
+
+    /* ── Assignment context ─────────────────────────────────────── */
+    var ctx  = Zest.getUser();
+    var row  = document.getElementById('rv-context');
+    var pills = [];
+    if (ctx && ctx.courseTitle) pills.push({ l: 'Course', v: ctx.courseTitle });
+    if (sub.userName)           pills.push({ l: 'Student', v: sub.userName });
+    if (artifacts.completedAt) {
+      try {
+        pills.push({ l: 'Completed', v: new Date(artifacts.completedAt).toLocaleDateString() });
+      } catch (e) {}
+    }
+    if (sub.comment) pills.push({ l: 'Comment', v: sub.comment });
+
+    row.innerHTML = pills.map(function (p) {
+      return '<span class="context-pill"><strong>' + esc(p.l) + ':</strong> ' + esc(String(p.v)) + '</span>';
+    }).join('');
+
+    document.getElementById('main-review').style.display = 'block';
+  });
+
+  function showError(msg) {
+    var el = document.getElementById('error-card');
+    document.getElementById('error-msg').textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function fmtDuration(sec) {
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m > 0 ? m + 'm ' + s + 's' : s + 's';
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+})();
+</script>
+</body>
+</html>

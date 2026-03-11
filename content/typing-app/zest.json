@@ -1,0 +1,55 @@
+{
+  "name": "Typing Practice",
+  "version": "1.0.0",
+  "description": "Keyboarding practice activity that scores students on WPM and accuracy. Auto-graded.",
+  "author": "Keyboarding Class",
+  "content": {
+    "grading": "auto",
+    "mainFile": "index.html",
+    "reviewFile": "review.html"
+  },
+  "layout": {
+    "width": 760,
+    "height": 660
+  },
+  "parameters": [
+    {
+      "key": "targetWpm",
+      "type": "number",
+      "label": "Target WPM (earns full speed credit)",
+      "default": 40,
+      "min": 10,
+      "max": 150
+    },
+    {
+      "key": "minAccuracy",
+      "type": "number",
+      "label": "Minimum Accuracy % (below this reduces score)",
+      "default": 90,
+      "min": 50,
+      "max": 100
+    },
+    {
+      "key": "timeLimit",
+      "type": "number",
+      "label": "Time Limit (seconds)",
+      "default": 120,
+      "min": 30,
+      "max": 600
+    },
+    {
+      "key": "passage",
+      "type": "select",
+      "label": "Typing Passage",
+      "default": "intermediate",
+      "options": [
+        { "value": "beginner",     "label": "Beginner — Home Row Focus" },
+        { "value": "intermediate", "label": "Intermediate — Common Words" },
+        { "value": "advanced",     "label": "Advanced — Varied Text" },
+        { "value": "numbers",      "label": "Numbers & Symbols" },
+        { "value": "sentences",    "label": "Pangram Sentences" }
+      ]
+    }
+  ],
+  "tags": ["keyboarding", "typing", "auto-graded"]
+}
