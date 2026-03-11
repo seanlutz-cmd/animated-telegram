@@ -1,0 +1,303 @@
+---
+name: bridge-api
+description: Zest Bridge API reference. Use when writing JavaScript that calls Zest.submitScore(), Zest.submitWork(), Zest.saveState(), Zest.loadState(), or any other Zest.* method. Also use when building interactive content for Canvas LTI.
+user-invocable: false
+---
+
+# Zest Bridge API
+
+The Bridge API is a JavaScript library that content creators include in their interactive content. It provides a standard interface for communicating with the Zest LTI wrapper inside Canvas.
+
+## Include
+
+Every content file must include this script tag in `<head>`:
+
+```html
+<script src="https://lti.testyturtle.dev/public/zest-bridge.js"></script>
+```
+
+## Critical Constraints
+
+1. **`confirm()`, `alert()`, `prompt()` are BLOCKED** in cross-origin iframes (Canvas embeds from a different origin). They silently return `false`/`undefined`. Use two-click confirmation patterns instead.
+2. **Canvas CSS prevents iframe resize** for assignment external tools. Content scrolls within the iframe. `setHeight()` only works for page embeds.
+3. **Content must be self-contained** — all CSS and JS inline or bundled in the zip. The bridge script is the only external dependency.
+4. **All methods require context** — most methods only work after `onReady()` fires. Always wrap initialization in `Zest.onReady()`.
+
+---
+
+## Context Methods
+
+### Zest.getUser()
+Returns the current user's context. Returns `null` if not in an LTI context.
+```javascript
+const user = Zest.getUser();
+// { id, name, email, roles, courseId, courseTitle, assignmentId }
+```
+
+### Zest.isStudent()
+```javascript
+if (Zest.isStudent()) { /* show student view */ }
+```
+
+### Zest.isTeacher()
+```javascript
+if (Zest.isTeacher()) { /* show teacher/admin view */ }
+```
+
+### Zest.onReady(callback)
+Fires when LTI context is received from the wrapper. If context is already available, fires immediately. **Always use this as your entry point.**
+```javascript
+Zest.onReady(function(ctx) {
+  console.log('User:', ctx.name);
+  console.log('Course:', ctx.courseTitle);
+  // Initialize your content here
+});
+```
+
+### Zest.isReady()
+Returns `true` if context has been received.
+
+---
+
+## Grading Methods
+
+### Zest.submitScore(score, options) — Auto-Graded
+
+Submits a score that appears immediately in the Canvas gradebook. Use for quizzes, auto-checked exercises, and anything the content can grade itself.
+
+```javascript
+const result = await Zest.submitScore(85, {
+  maxScore: 100,           // Optional, default 100
+  artifacts: {             // Optional — arbitrary JSON stored for teacher review
+    answers: { q1: 'A', q2: 'B', q3: 'C' },
+    timing: { duration: 4444 }
+  },
+  comment: 'Scored 85%'   // Optional
+});
+// result: { success: true } or { success: false, error: '...' }
+```
+
+**Canvas behavior**: Score appears immediately in gradebook as 85/100. Teacher can view artifacts in SpeedGrader via review.html.
+
+### Zest.submitWork(options) — Teacher-Graded
+
+Submits student work without a score. Gradebook shows "Submitted" and the teacher assigns a grade manually in SpeedGrader.
+
+```javascript
+const result = await Zest.submitWork({
+  artifacts: {             // Arbitrary JSON — teacher sees this in review.html
+    hypothesis: 'Plants grow faster with more light',
+    data: [/* experiment results */],
+    analysis: 'The results show...'
+  },
+  comment: 'Lab completed'  // Optional
+});
+// result: { success: true } or { success: false, error: '...' }
+```
+
+**Canvas behavior**: Gradebook shows "Submitted" with no score. Teacher opens SpeedGrader, sees artifacts in review.html, enters grade manually.
+
+### Grading Mode Comparison
+
+| | submitScore() | submitWork() |
+|---|---|---|
+| Score | Required (number) | None (null) |
+| Gradebook | Score appears immediately | Shows "Submitted" |
+| Teacher action | Can review artifacts | Must assign grade |
+| Use case | Quiz, auto-check | Lab report, essay, experiment |
+
+---
+
+## Review Mode Methods
+
+### Zest.isReviewMode()
+Returns `true` when the teacher is viewing this content in SpeedGrader.
+```javascript
+if (Zest.isReviewMode()) {
+  const sub = Zest.getSubmission();
+  // Render student's submitted data for teacher review
+}
+```
+
+### Zest.getSubmission()
+In review mode, returns the student's submitted data.
+```javascript
+const sub = Zest.getSubmission();
+// { score, maxScore, artifacts, comment, submittedAt, userId, userName }
+// score/maxScore are null for teacher-graded (submitWork) submissions
+```
+
+---
+
+## UI Methods
+
+### Zest.setHeight(pixels)
+Reports content height for auto-resize. Sends `lti.frameResize` to Canvas.
+
+**Note**: Only works for **page embeds** (deep link html mode). Has **no effect on assignment external tools** due to Canvas CSS `!important` limitation. For assignments, content scrolls within the iframe.
+
+```javascript
+Zest.setHeight(document.body.scrollHeight + 40);
+```
+
+---
+
+## State Persistence Methods
+
+Three-tier storage: Memory (undo/redo) → localStorage (fast/offline) → Server/PostgreSQL (durable/cross-device).
+
+State is keyed by `contentId + assignmentId + userId` — same content in two different assignments = independent saves.
+
+### Zest.saveState(data)
+Save work-in-progress. Writes to localStorage immediately, marks state as dirty for server sync (every 60 seconds). Pushes current state to undo stack and clears redo stack.
+
+```javascript
+Zest.saveState({
+  currentPhase: 3,
+  answers: { q1: 'a', q2: 'b' },
+  hypothesis: 'Plants grow faster with more light'
+});
+// No return value — fire and forget
+```
+
+### Zest.loadState()
+Load saved state. First call fetches from server and compares with localStorage — uses the newer one. Subsequent calls return from localStorage (fast).
+
+```javascript
+const state = await Zest.loadState();
+if (state) {
+  restoreForm(state);  // Rebuild UI from saved state
+}
+// Returns: data object or null (no saved state)
+```
+
+### Zest.clearState()
+Clear all saved state (localStorage, undo/redo stacks, and server). Used for "Start Over" / reset functionality.
+
+```javascript
+await Zest.clearState();
+```
+
+### Zest.undo() / Zest.redo()
+In-memory only, per session. Max 50 entries.
+
+```javascript
+const prev = Zest.undo();   // Previous state or null
+const next = Zest.redo();   // Next state or null
+```
+
+### Zest.hasUnsyncedChanges()
+Returns `true` if localStorage state differs from server.
+
+### Zest.onSyncStatus(callback)
+Fires with sync status changes. Use this to show a save indicator.
+
+```javascript
+Zest.onSyncStatus(function(status) {
+  // status: 'synced' | 'dirty' | 'syncing' | 'error'
+  var labels = {
+    synced: 'Saved',
+    dirty: 'Unsaved changes',
+    syncing: 'Saving...',
+    error: 'Save failed'
+  };
+  document.getElementById('save-indicator').textContent = labels[status];
+});
+```
+
+### Zest.syncNow()
+Force immediate server sync instead of waiting for the 60-second timer.
+
+```javascript
+await Zest.syncNow();
+```
+
+---
+
+## State Persistence Internals
+
+- **Sync timer**: 60-second interval syncs dirty state to server via the embed wrapper
+- **MD5 hash**: Server compares hash to skip redundant writes
+- **beforeunload**: On tab close, bridge sends state to wrapper which fires `navigator.sendBeacon`
+- **localStorage key**: `zest-state-{contentId}-{assignmentId}-{userId}`
+- **Size limit**: 10 MB per state
+- **Undo/redo**: In-memory only, max 50 entries, cleared on page reload
+
+---
+
+## Answer Key Methods (Review Mode Only)
+
+### Zest.getAnswerKey()
+Returns the answer key data from the content's `.secure/` directory, if one was declared in `zest.json`. Only available in **review mode** (SpeedGrader). Returns `null` in student mode or if no answer key exists.
+
+```javascript
+if (Zest.isReviewMode()) {
+  var key = Zest.getAnswerKey();
+  if (key) {
+    // key is the parsed JSON from the answer key file
+    // e.g., { q1: 'b', q2: 'c', q3: 'a' }
+    highlightCorrectAnswers(key);
+  }
+}
+```
+
+**How it works**: The answer key file (declared via `"answerKey"` in `zest.json`) is extracted to a `.secure/` directory during upload. This directory is never served to students. In review mode, the server loads the answer key and includes it in the `zest-context` postMessage.
+
+---
+
+## Parameter Methods
+
+Parameters are defined in `zest.json` and set per-placement by teachers during embedding. They allow the same content to behave differently in different assignments (e.g., different difficulty levels, time limits, or question sets).
+
+### Zest.getParameters()
+Returns the full parameters object for this placement, or `null` if no parameters were set.
+
+```javascript
+Zest.onReady(function(ctx) {
+  var params = Zest.getParameters();
+  if (params) {
+    console.log('Difficulty:', params.difficulty);
+    console.log('Time limit:', params.timeLimit);
+  }
+});
+```
+
+### Zest.getParameter(key, defaultValue)
+Get a single parameter value with a fallback default.
+
+```javascript
+var difficulty = Zest.getParameter('difficulty', 'medium');
+var timeLimit = Zest.getParameter('timeLimit', 30);
+var showHints = Zest.getParameter('showHints', true);
+```
+
+**How parameters are set**: Teachers configure parameter values when embedding content via the picker UI. Values are stored as LTI custom variables (`zest_param_<key>`) so each placement (assignment) can have different values for the same content.
+
+**Type coercion**: Parameter values are automatically coerced based on the type declared in `zest.json`:
+- `"select"` → string
+- `"number"` → number (parseFloat)
+- `"boolean"` → boolean
+- `"text"` → string
+
+---
+
+## Error Handling Pattern
+
+Always handle submission failures with retry capability:
+
+```javascript
+Zest.submitScore(score, { artifacts: data })
+  .then(function(result) {
+    if (result.success) {
+      submitBtn.textContent = 'Submitted!';
+      submitBtn.disabled = true;
+    } else {
+      submitBtn.textContent = 'Retry Submit';
+      submitBtn.disabled = false;
+    }
+  })
+  .catch(function(err) {
+    submitBtn.textContent = 'Retry Submit';
+    submitBtn.disabled = false;
+  });
+```
