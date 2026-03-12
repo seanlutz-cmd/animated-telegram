@@ -1,781 +1,1045 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Typing Practice</title>
   <script src="https://lti.testyturtle.dev/public/zest-bridge.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    :root {
+      --cwa-white: #ffffff;
+      --cwa-cardinal: #960000;
+      --cwa-near-black: #131313;
+      --cwa-warm-gray: #605f5e;
+      --cwa-sky: #25aefa;
+      --cwa-navy: #1b3168;
+      --cwa-surface: #ffffff;
+      --cwa-border: #d8dde8;
+      --cwa-success: #147a3f;
+      --cwa-danger: #960000;
+      --cwa-shadow: 0 10px 24px rgba(19, 19, 19, 0.08);
+      --cwa-radius: 18px;
+      --cwa-radius-sm: 12px;
+      --cwa-focus: 0 0 0 3px rgba(37, 174, 250, 0.28);
+      --cwa-font: Arial, Helvetica, sans-serif;
+      --cwa-max-width: 1080px;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html,
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
-      padding: 12px;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #f7f8fb 0%, #eef4fb 100%);
+      color: var(--cwa-near-black);
+      font-family: var(--cwa-font);
+    }
+    body {
       min-height: 100vh;
     }
-
-    .container { max-width: 720px; margin: 0 auto; }
-
-    /* ── Header ─────────────────────────────────────────────────── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
+    .cwa-app {
+      max-width: var(--cwa-max-width);
+      margin: 0 auto;
+      padding: 24px;
     }
-    .header-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #0770A2;
-      letter-spacing: -0.01em;
-    }
-    .sync-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.72rem;
-      color: #888;
-    }
-    .sync-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #ccc;
-      flex-shrink: 0;
-    }
-    .sync-dot.synced  { background: #27ae60; }
-    .sync-dot.dirty   { background: #f39c12; }
-    .sync-dot.syncing { background: #3498db; animation: blink 1s infinite; }
-    .sync-dot.error   { background: #e74c3c; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    /* ── Cards ──────────────────────────────────────────────────── */
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.09);
-      padding: 20px;
-      margin-bottom: 12px;
-    }
-
-    /* ── Screens ────────────────────────────────────────────────── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* ── Start screen ───────────────────────────────────────────── */
-    .start-hero { text-align: center; margin-bottom: 16px; }
-    .start-hero .icon { font-size: 2.8rem; line-height: 1; }
-    .start-hero h2 { font-size: 1.3rem; font-weight: 700; margin: 6px 0 4px; }
-    .start-hero p { font-size: 0.85rem; color: #666; }
-
-    .passage-preview {
-      background: #f7f9fc;
-      border: 1px solid #dde3ea;
-      border-radius: 7px;
-      padding: 14px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.88rem;
-      line-height: 1.7;
-      color: #444;
-      margin-bottom: 14px;
-      max-height: 90px;
-      overflow: hidden;
-      position: relative;
-    }
-    .passage-preview::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 28px;
-      background: linear-gradient(transparent, #f7f9fc);
-    }
-
-    .params-grid {
+    .cwa-shell {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 20px;
     }
-    .param-badge {
-      background: #eaf4fb;
-      border: 1px solid #b8d9ed;
-      border-radius: 7px;
-      padding: 8px 6px;
-      text-align: center;
+    .cwa-card {
+      background: var(--cwa-surface);
+      border: 1px solid var(--cwa-border);
+      border-radius: var(--cwa-radius);
+      box-shadow: var(--cwa-shadow);
     }
-    .param-badge .pv { font-size: 1.15rem; font-weight: 700; color: #0770A2; }
-    .param-badge .pl { font-size: 0.68rem; color: #666; margin-top: 2px; }
-
-    /* ── Typing screen ──────────────────────────────────────────── */
-    .restored-banner {
-      background: #e8f8ef;
-      border: 1px solid #a0dab8;
-      border-radius: 7px;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      color: #1a6b3c;
-      margin-bottom: 10px;
-      display: none;
+    .cwa-hero {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(135deg, var(--cwa-navy), var(--cwa-cardinal));
+      color: var(--cwa-white);
     }
-    .restored-banner.show { display: block; }
-
-    .progress-wrap {
-      background: #e0e7ef;
-      border-radius: 4px;
-      height: 5px;
-      margin-bottom: 10px;
-      overflow: hidden;
+    .cwa-title {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      line-height: 1.15;
     }
-    .progress-fill {
-      height: 100%;
-      background: #0770A2;
-      border-radius: 4px;
-      transition: width .2s;
-    }
-
-    #passage-display {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 1.05rem;
-      line-height: 1.9;
-      letter-spacing: 0.015em;
-      padding: 14px;
-      background: #f7f9fc;
-      border: 1px solid #dde3ea;
-      border-radius: 7px;
-      min-height: 90px;
-      max-height: 200px;
-      overflow-y: auto;
-      word-break: break-word;
-      margin-bottom: 10px;
-      user-select: none;
-    }
-
-    .char-pending   { color: #555; }
-    .char-correct   { color: #1a8f50; }
-    .char-incorrect { color: #fff; background: #d93025; border-radius: 2px; }
-    .char-cursor    { border-left: 2px solid #0770A2; color: #555; }
-
-    #typing-input {
-      width: 100%;
-      padding: 11px 13px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 1rem;
-      border: 2px solid #0770A2;
-      border-radius: 7px;
-      outline: none;
-      resize: none;
-      height: 80px;
+    .cwa-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.92);
+      max-width: 72ch;
       line-height: 1.5;
-      background: #fff;
-      transition: border-color .15s, box-shadow .15s;
     }
-    #typing-input:focus {
-      border-color: #055c87;
-      box-shadow: 0 0 0 3px rgba(7,112,162,.15);
-    }
-    #typing-input:disabled {
-      background: #f5f5f5;
-      border-color: #ccc;
-      color: #999;
-      cursor: not-allowed;
-    }
-
-    .stats-bar {
+    .cwa-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .cwa-stat {
+      padding: 18px;
+      display: grid;
       gap: 8px;
-      margin-top: 10px;
+      min-height: 112px;
     }
-    .stat-chip {
-      background: #f7f9fc;
-      border: 1px solid #e0e7ef;
-      border-radius: 7px;
-      padding: 8px 6px;
-      text-align: center;
-    }
-    .stat-chip .sv { font-size: 1.25rem; font-weight: 700; color: #0770A2; }
-    .stat-chip .sl { font-size: 0.68rem; color: #888; margin-top: 2px; }
-    .stat-chip.warn  .sv { color: #d97706; }
-    .stat-chip.danger .sv { color: #dc2626; }
-
-    /* ── Results screen ─────────────────────────────────────────── */
-    .score-ring {
-      width: 110px; height: 110px;
-      border-radius: 50%;
-      background: #0770A2;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 14px;
-    }
-    .score-ring .sr-val { font-size: 2rem; font-weight: 800; line-height: 1; }
-    .score-ring .sr-max { font-size: 0.68rem; opacity: .75; margin-top: 3px; }
-
-    .score-ring.grade-a { background: #1a8f50; }
-    .score-ring.grade-b { background: #0770A2; }
-    .score-ring.grade-c { background: #d97706; }
-    .score-ring.grade-f { background: #c0392b; }
-
-    .results-hd { text-align: center; margin-bottom: 4px; font-size: 1.1rem; font-weight: 700; }
-    .results-sub { text-align: center; font-size: 0.82rem; color: #666; margin-bottom: 16px; }
-
-    .stats-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 14px;
-      font-size: 0.88rem;
-    }
-    .stats-table thead th {
-      text-align: left;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: #888;
-      padding: 5px 8px;
-      border-bottom: 1px solid #e8e8e8;
-    }
-    .stats-table tbody td {
-      padding: 8px 8px;
-      border-bottom: 1px solid #f2f2f2;
-    }
-    .stats-table tbody td.val {
-      text-align: right;
+    .cwa-stat__label {
+      font-size: 0.92rem;
+      color: var(--cwa-warm-gray);
       font-weight: 700;
-      color: #0770A2;
+      margin: 0;
     }
-
-    .score-note {
-      background: #eaf4fb;
-      border: 1px solid #b8d9ed;
-      border-radius: 7px;
-      padding: 11px 13px;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: #2c5f7a;
-      margin-bottom: 14px;
-      white-space: pre-line;
+    .cwa-stat__value {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      margin: 0;
+      color: var(--cwa-navy);
     }
-    .score-note.warn-note {
-      background: #fff8e1;
-      border-color: #ffe082;
-      color: #7a5c00;
+    .cwa-stat__hint {
+      font-size: 0.88rem;
+      color: var(--cwa-warm-gray);
+      margin: 0;
     }
-
-    /* ── Buttons ────────────────────────────────────────────────── */
-    .btn {
+    .cwa-main {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .cwa-panel {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .cwa-panel h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--cwa-navy);
+    }
+    .cwa-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .cwa-pill {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 5px;
-      padding: 10px 18px;
-      border-radius: 7px;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: #f3f6fb;
+      border: 1px solid var(--cwa-border);
+      color: var(--cwa-navy);
+    }
+    .cwa-pill[data-state="ready"] {
+      background: #edf6ff;
+    }
+    .cwa-pill[data-state="running"] {
+      background: #eefbf3;
+      color: var(--cwa-success);
+    }
+    .cwa-pill[data-state="complete"] {
+      background: #fff3f3;
+      color: var(--cwa-cardinal);
+    }
+    .cwa-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 14px;
+      padding: 18px;
+      align-items: end;
+    }
+    .cwa-field {
+      display: grid;
+      gap: 8px;
+    }
+    .cwa-label {
+      font-weight: 700;
+      color: var(--cwa-navy);
+      font-size: 0.95rem;
+    }
+    .cwa-input,
+    .cwa-button,
+    .cwa-textarea {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--cwa-border);
+      font: inherit;
+    }
+    .cwa-input,
+    .cwa-textarea {
+      padding: 12px 14px;
+      background: var(--cwa-white);
+      color: var(--cwa-near-black);
+    }
+    .cwa-textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.55;
+      align-self: start;
+    }
+    .cwa-input:focus,
+    .cwa-button:focus,
+    .cwa-textarea:focus,
+    .cwa-toggle:focus-within {
+      outline: none;
+      box-shadow: var(--cwa-focus);
+      border-color: var(--cwa-sky);
+    }
+    .cwa-button {
+      cursor: pointer;
+      padding: 12px 16px;
+      font-weight: 700;
+    }
+    .cwa-button--primary {
+      background: var(--cwa-cardinal);
+      color: var(--cwa-white);
+      border: 1px solid var(--cwa-cardinal);
+    }
+    .cwa-button--secondary {
+      background: var(--cwa-white);
+      color: var(--cwa-navy);
+      border: 1px solid var(--cwa-navy);
+    }
+    /* Two-click confirm state */
+    .cwa-button--confirming {
+      background: #7a0000;
+      color: var(--cwa-white);
+      border-color: #7a0000;
+    }
+    .cwa-button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .cwa-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 1px solid var(--cwa-border);
+      border-radius: 12px;
+      background: var(--cwa-white);
+      color: var(--cwa-navy);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .cwa-toggle input {
+      margin: 0;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--cwa-cardinal);
+    }
+    .cwa-text-display {
+      border: 1px solid var(--cwa-border);
+      border-radius: var(--cwa-radius-sm);
+      background: #fbfcfe;
+      padding: 18px;
+      height: 260px;
+      overflow-y: auto;
+      font-size: 1.1rem;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      white-space: pre-wrap;
+      word-break: break-word;
+      scroll-behavior: smooth;
+    }
+    .cwa-char {
+      padding: 0 1px;
+      border-radius: 4px;
+    }
+    .cwa-char--current {
+      background: rgba(37, 174, 250, 0.18);
+      outline: 1px solid rgba(37, 174, 250, 0.55);
+    }
+    .cwa-char--correct {
+      color: var(--cwa-success);
+    }
+    .cwa-char--incorrect {
+      color: var(--cwa-white);
+      background: var(--cwa-danger);
+    }
+    .cwa-char--pending {
+      color: #7d8796;
+    }
+    .cwa-summary {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--cwa-border);
+      border-radius: var(--cwa-radius-sm);
+      padding: 16px;
+      background: #fcfcff;
+      align-self: start;
+    }
+    .cwa-summary[hidden] {
+      display: none;
+    }
+    .cwa-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .cwa-summary-item {
+      border: 1px solid var(--cwa-border);
+      border-radius: 12px;
+      padding: 14px;
+      background: var(--cwa-white);
+    }
+    .cwa-summary-item strong {
+      display: block;
+      color: var(--cwa-warm-gray);
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+    .cwa-summary-item span {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--cwa-navy);
+    }
+    .cwa-input-panel {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      align-items: start;
+    }
+    .cwa-hidden-source {
+      display: none;
+    }
+    .cwa-sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    /* Sync indicator */
+    .cwa-sync-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+    .cwa-sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .cwa-sync-dot.synced  { background: #4ade80; }
+    .cwa-sync-dot.dirty   { background: #fbbf24; }
+    .cwa-sync-dot.syncing { background: #60b8f0; animation: cwa-blink 1s infinite; }
+    .cwa-sync-dot.error   { background: #f87171; }
+    @keyframes cwa-blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    /* Restored progress banner */
+    .cwa-restored-banner {
+      display: none;
+      background: #eefbf3;
+      border: 1px solid #86efac;
+      border-radius: var(--cwa-radius-sm);
+      padding: 12px 16px;
       font-size: 0.88rem;
       font-weight: 600;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: background .15s, border-color .15s, opacity .15s;
+      color: #15532a;
     }
-    .btn-primary  { background: #0770A2; color: #fff; }
-    .btn-primary:hover:not(:disabled) { background: #055c87; }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-outline  { background: transparent; color: #0770A2; border-color: #0770A2; }
-    .btn-outline:hover { background: #eaf4fb; }
-    .btn-danger-outline { background: transparent; color: #c0392b; border-color: #c0392b; }
-    .btn-danger-confirm { background: #c0392b; color: #fff; border-color: #c0392b; }
-    .btn-full { width: 100%; }
-
-    .btn-row { display: flex; gap: 8px; }
-    .btn-row .btn { flex: 1; }
-
-    .submitted-badge {
-      display: inline-block;
-      background: #27ae60;
-      color: #fff;
-      font-size: 0.75rem;
+    .cwa-restored-banner.cwa-visible { display: block; }
+    /* Score display */
+    .cwa-score-area {
+      display: none;
+      border: 1px solid var(--cwa-border);
+      border-radius: 12px;
+      padding: 14px;
+      background: var(--cwa-white);
+    }
+    .cwa-score-area strong {
+      display: block;
+      color: var(--cwa-warm-gray);
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+    .cwa-score-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--cwa-navy);
+      line-height: 1;
+    }
+    .cwa-score-note {
+      font-size: 0.78rem;
+      color: var(--cwa-warm-gray);
+      margin-top: 5px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    .cwa-score-note.cwa-warn {
+      color: #92400e;
+    }
+    /* Submit area */
+    .cwa-submit-area {
+      display: none;
+    }
+    .cwa-submitted-area {
+      display: none;
+      text-align: center;
+      padding: 6px 0;
       font-weight: 700;
-      padding: 4px 14px;
-      border-radius: 20px;
-      letter-spacing: .04em;
+      color: var(--cwa-success);
+      font-size: 0.95rem;
     }
-    .submitted-wrap { text-align: center; margin-top: 10px; }
+    @media (max-width: 900px) {
+      .cwa-stats,
+      .cwa-main,
+      .cwa-toolbar,
+      .cwa-summary-grid,
+      .cwa-button-row {
+        grid-template-columns: 1fr;
+      }
+      .cwa-toggle {
+        white-space: normal;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="container">
+  <main
+    class="cwa-app"
+    id="cwa-app"
+    data-lesson-title="Home Row Typing Practice"
+    data-lesson-instructions="Type the passage exactly as shown."
+  >
+    <textarea id="cwa-lesson-source" class="cwa-hidden-source" aria-hidden="true">asdf jkl; asdf jkl; asdf jkl;
+asdf jkl; fdsa jkl; asdf jkl;
+a sad lad had salad
+all fall; glad lad
+a glad lad; salad
+dad had salad; fall again
+a glad lad had salad
+all had salad; glad lad
+dad had a salad; all had salad
+jkl; fdsa jkl; fdsa
+asdf jkl; fdsa jkl; fdsa
+a lad had salad; a lad had salad
+sad lad; glad lad; all had salad
+a glad lad had salad; dad had salad
+all lads had salad; glad lad; all</textarea>
+    <div class="cwa-shell">
+      <!-- Restored progress banner -->
+      <div class="cwa-restored-banner" id="cwa-restored-banner" role="status">
+        Your previous progress has been restored. Click Start / Restart to continue.
+      </div>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-title">Typing Practice</div>
-    <div class="sync-row">
-      <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label"></span>
+      <section class="cwa-card cwa-hero" aria-labelledby="cwa-lesson-title">
+        <h1 class="cwa-title" id="cwa-lesson-title">Typing Practice</h1>
+        <p class="cwa-subtitle" id="cwa-lesson-instructions">Type the assigned text.</p>
+        <!-- Sync indicator -->
+        <div class="cwa-sync-row" id="cwa-sync-row" aria-live="polite">
+          <div class="cwa-sync-dot" id="cwa-sync-dot"></div>
+          <span id="cwa-sync-label"></span>
+        </div>
+      </section>
+      <section class="cwa-stats" aria-label="Typing statistics">
+        <article class="cwa-card cwa-stat">
+          <p class="cwa-stat__label">Time</p>
+          <p class="cwa-stat__value" id="cwa-time">00:00</p>
+          <p class="cwa-stat__hint">How long the student has been typing</p>
+        </article>
+        <article class="cwa-card cwa-stat">
+          <p class="cwa-stat__label">Accuracy</p>
+          <p class="cwa-stat__value" id="cwa-accuracy">100%</p>
+          <p class="cwa-stat__hint">Correct keystrokes</p>
+        </article>
+        <article class="cwa-card cwa-stat">
+          <p class="cwa-stat__label">WPM</p>
+          <p class="cwa-stat__value" id="cwa-wpm">0</p>
+          <p class="cwa-stat__hint">Standard 5-character words</p>
+        </article>
+        <article class="cwa-card cwa-stat">
+          <p class="cwa-stat__label">Progress</p>
+          <p class="cwa-stat__value" id="cwa-progress-stat">0%</p>
+          <p class="cwa-stat__hint">Characters entered</p>
+        </article>
+      </section>
+      <section class="cwa-card cwa-toolbar" aria-label="Lesson setup">
+        <div class="cwa-field">
+          <label class="cwa-label" for="cwa-lesson-preview">Lesson text</label>
+          <input class="cwa-input" id="cwa-lesson-preview" type="text" readonly />
+        </div>
+        <div class="cwa-field">
+          <span class="cwa-label">Sound</span>
+          <label class="cwa-toggle" for="cwa-sound-toggle">
+            <input id="cwa-sound-toggle" type="checkbox" />
+            <span>Incorrect key beep</span>
+          </label>
+        </div>
+        <div class="cwa-field">
+          <span class="cwa-label">Session controls</span>
+          <div class="cwa-button-row">
+            <button class="cwa-button cwa-button--primary" id="cwa-start-button" type="button">Start / Restart</button>
+            <button class="cwa-button cwa-button--secondary" id="cwa-clear-button" type="button">Clear Input</button>
+          </div>
+        </div>
+      </section>
+      <section class="cwa-main" aria-label="Typing workspace">
+        <div class="cwa-card cwa-panel">
+          <h2>Target text</h2>
+          <div class="cwa-status">
+            <span class="cwa-pill" id="cwa-state-pill" data-state="ready">Ready</span>
+            <span class="cwa-pill" id="cwa-progress-pill">0 / 0 characters</span>
+            <span class="cwa-pill" id="cwa-finish-pill">Type to the last character</span>
+          </div>
+          <div class="cwa-text-display" id="cwa-text-display" aria-live="polite" aria-label="Typing target text" tabindex="0"></div>
+        </div>
+        <div class="cwa-card cwa-panel">
+          <h2>Your typing</h2>
+          <div class="cwa-input-panel">
+            <label class="cwa-sr-only" for="cwa-input">Type the lesson text here</label>
+            <textarea
+              class="cwa-textarea"
+              id="cwa-input"
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              placeholder="Click Start / Restart, then type the full passage here..."
+            ></textarea>
+            <section class="cwa-summary" id="cwa-summary" hidden aria-live="polite">
+              <h2>Session summary</h2>
+              <div class="cwa-summary-grid">
+                <div class="cwa-summary-item">
+                  <strong>Final time</strong>
+                  <span id="cwa-summary-time">00:00</span>
+                </div>
+                <div class="cwa-summary-item">
+                  <strong>Final accuracy</strong>
+                  <span id="cwa-summary-accuracy">100%</span>
+                </div>
+                <div class="cwa-summary-item">
+                  <strong>Final WPM</strong>
+                  <span id="cwa-summary-wpm">0</span>
+                </div>
+                <div class="cwa-summary-item">
+                  <strong>Characters typed</strong>
+                  <span id="cwa-summary-chars">0</span>
+                </div>
+              </div>
+
+              <!-- Score (shown after completion) -->
+              <div class="cwa-score-area" id="cwa-score-area">
+                <strong>Your Score</strong>
+                <div class="cwa-score-value" id="cwa-score-value">—</div>
+                <div class="cwa-score-note" id="cwa-score-note"></div>
+              </div>
+
+              <!-- Submit button (shown before submission) -->
+              <div class="cwa-submit-area" id="cwa-submit-area">
+                <div class="cwa-button-row">
+                  <button class="cwa-button cwa-button--secondary" id="cwa-reset-button" type="button">Start Over</button>
+                  <button class="cwa-button cwa-button--primary" id="cwa-submit-button" type="button">Submit Score</button>
+                </div>
+              </div>
+
+              <!-- Submitted confirmation (shown after submission) -->
+              <div class="cwa-submitted-area" id="cwa-submitted-area">
+                &#10003; Score submitted to Canvas
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
+  </main>
+  <script>
+    // script.js
+(() => {
+  const app = document.getElementById("cwa-app");
+  const lessonSource = document.getElementById("cwa-lesson-source");
+  if (!app || !lessonSource) return;
 
-  <!-- ── SCREEN: Start ──────────────────────────────────────────── -->
-  <div class="screen" id="screen-start">
-    <div class="card">
-      <div class="start-hero">
-        <div class="icon">&#9000;</div>
-        <h2 id="start-passage-title">Typing Practice</h2>
-        <p>Type the passage as accurately and quickly as you can.</p>
-      </div>
-      <div class="passage-preview" id="passage-preview"></div>
-      <div class="params-grid">
-        <div class="param-badge">
-          <div class="pv" id="badge-wpm">—</div>
-          <div class="pl">Target WPM</div>
-        </div>
-        <div class="param-badge">
-          <div class="pv" id="badge-acc">—</div>
-          <div class="pl">Min. Accuracy</div>
-        </div>
-        <div class="param-badge">
-          <div class="pv" id="badge-time">—</div>
-          <div class="pl">Time Limit</div>
-        </div>
-      </div>
-      <button class="btn btn-primary btn-full" id="btn-start">Start Typing</button>
-    </div>
-  </div>
+  const els = {
+    lessonTitle:       document.getElementById("cwa-lesson-title"),
+    lessonInstructions:document.getElementById("cwa-lesson-instructions"),
+    lessonPreview:     document.getElementById("cwa-lesson-preview"),
+    time:              document.getElementById("cwa-time"),
+    accuracy:          document.getElementById("cwa-accuracy"),
+    wpm:               document.getElementById("cwa-wpm"),
+    progressStat:      document.getElementById("cwa-progress-stat"),
+    textDisplay:       document.getElementById("cwa-text-display"),
+    input:             document.getElementById("cwa-input"),
+    startButton:       document.getElementById("cwa-start-button"),
+    clearButton:       document.getElementById("cwa-clear-button"),
+    soundToggle:       document.getElementById("cwa-sound-toggle"),
+    statePill:         document.getElementById("cwa-state-pill"),
+    progressPill:      document.getElementById("cwa-progress-pill"),
+    finishPill:        document.getElementById("cwa-finish-pill"),
+    summary:           document.getElementById("cwa-summary"),
+    summaryTime:       document.getElementById("cwa-summary-time"),
+    summaryAccuracy:   document.getElementById("cwa-summary-accuracy"),
+    summaryWpm:        document.getElementById("cwa-summary-wpm"),
+    summaryChars:      document.getElementById("cwa-summary-chars"),
+    // Zest additions
+    syncDot:           document.getElementById("cwa-sync-dot"),
+    syncLabel:         document.getElementById("cwa-sync-label"),
+    restoredBanner:    document.getElementById("cwa-restored-banner"),
+    scoreArea:         document.getElementById("cwa-score-area"),
+    scoreValue:        document.getElementById("cwa-score-value"),
+    scoreNote:         document.getElementById("cwa-score-note"),
+    submitArea:        document.getElementById("cwa-submit-area"),
+    submitButton:      document.getElementById("cwa-submit-button"),
+    resetButton:       document.getElementById("cwa-reset-button"),
+    submittedArea:     document.getElementById("cwa-submitted-area"),
+  };
 
-  <!-- ── SCREEN: Typing ─────────────────────────────────────────── -->
-  <div class="screen" id="screen-typing">
-    <div class="restored-banner" id="restored-banner">
-      Progress restored — pick up where you left off!
-    </div>
-    <div class="card">
-      <div class="progress-wrap">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-      <div id="passage-display" aria-label="Passage to type"></div>
-      <textarea
-        id="typing-input"
-        placeholder="Click here and start typing the passage above…"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        aria-label="Typing input"
-      ></textarea>
-      <div class="stats-bar">
-        <div class="stat-chip">
-          <div class="sv" id="live-wpm">0</div>
-          <div class="sl">WPM</div>
-        </div>
-        <div class="stat-chip">
-          <div class="sv" id="live-acc">100%</div>
-          <div class="sl">Accuracy</div>
-        </div>
-        <div class="stat-chip" id="timer-chip">
-          <div class="sv" id="live-timer">—</div>
-          <div class="sl">Remaining</div>
-        </div>
-        <div class="stat-chip">
-          <div class="sv" id="live-errors">0</div>
-          <div class="sl">Errors</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  // ── Original app state (unchanged) ──────────────────────────────
+  const state = {
+    lessonText: "",
+    started: false,
+    completed: false,
+    startTime: null,
+    elapsedSeconds: 0,
+    timerId: null,
+    audioContext: null,
+    soundEnabled: false,
+    lastIncorrectIndex: -1
+  };
 
-  <!-- ── SCREEN: Results ────────────────────────────────────────── -->
-  <div class="screen" id="screen-results">
-    <div class="card">
-      <div class="score-ring" id="score-ring">
-        <div class="sr-val" id="r-score">—</div>
-        <div class="sr-max">out of 100</div>
-      </div>
-      <div class="results-hd" id="r-headline">Activity Complete!</div>
-      <div class="results-sub" id="r-subline">Review your results below.</div>
-
-      <table class="stats-table">
-        <thead>
-          <tr><th>Stat</th><th style="text-align:right">Your Result</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Words per Minute (WPM)</td><td class="val" id="r-wpm">—</td></tr>
-          <tr><td>Accuracy</td><td class="val" id="r-acc">—</td></tr>
-          <tr><td>Duration</td><td class="val" id="r-dur">—</td></tr>
-          <tr><td>Errors</td><td class="val" id="r-errs">—</td></tr>
-          <tr><td>Keys Typed</td><td class="val" id="r-keys">—</td></tr>
-        </tbody>
-      </table>
-
-      <div class="score-note" id="r-breakdown"></div>
-
-      <!-- Pre-submit buttons -->
-      <div class="btn-row" id="r-btn-row">
-        <button class="btn btn-danger-outline" id="btn-reset">Start Over</button>
-        <button class="btn btn-primary" id="btn-submit" disabled>Submit Score</button>
-      </div>
-
-      <!-- Post-submit -->
-      <div class="submitted-wrap" id="r-submitted" style="display:none">
-        <span class="submitted-badge">&#10003; Score Submitted</span>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /container -->
-
-<script>
-(function () {
-  'use strict';
-
-  /* ── Passages ──────────────────────────────────────────────────── */
-  var PASSAGES = {
+  // ── Zest state ───────────────────────────────────────────────────
+  const PASSAGES = {
     beginner: {
-      title: 'Home Row Focus',
-      text: 'A glad lad had a dark flask. He felt the fall of sand and ash. Dad held a flashlight and a flag. Half a glass fell off the shelf. A lass had a salad. All flags flash at dusk. She shall lead the class today.'
+      title: "Home Row Typing Practice",
+      text: `asdf jkl; asdf jkl; asdf jkl;
+asdf jkl; fdsa jkl; asdf jkl;
+a sad lad had salad
+all fall; glad lad
+a glad lad; salad
+dad had salad; fall again
+a glad lad had salad
+all had salad; glad lad
+dad had a salad; all had salad
+jkl; fdsa jkl; fdsa
+asdf jkl; fdsa jkl; fdsa
+a lad had salad; a lad had salad
+sad lad; glad lad; all had salad
+a glad lad had salad; dad had salad
+all lads had salad; glad lad; all`
     },
     intermediate: {
-      title: 'Common Words',
-      text: 'Learning to type quickly takes practice and patience. Keep your fingers on the home row keys and your eyes on the screen. Focus on accuracy first, then speed will follow as your skills improve over time with daily practice.'
+      title: "Common Words",
+      text: "Learning to type quickly takes practice and patience. Keep your fingers on the home row keys and your eyes on the screen. Focus on accuracy first, then speed will follow as your skills improve over time with daily practice."
     },
     advanced: {
-      title: 'Varied Text',
-      text: 'Effective keyboarding requires proper technique, including correct finger placement on the home row, upright posture, and keeping your eyes on the screen rather than the keyboard. With consistent daily practice, you can develop both speed and accuracy simultaneously.'
+      title: "Varied Text",
+      text: "Effective keyboarding requires proper technique, including correct finger placement on the home row, upright posture, and keeping your eyes on the screen rather than the keyboard. With consistent daily practice, you can develop both speed and accuracy simultaneously."
     },
     numbers: {
-      title: 'Numbers and Symbols',
-      text: 'Call (555) 867-5309 for details. The invoice total is $1,247.50 including 8.5% tax. Please confirm order #4892-B by 3:00 PM on March 15th. Email orders@shop.com or fax to 1-800-555-0199.'
+      title: "Numbers and Symbols",
+      text: "Call (555) 867-5309 for details. The invoice total is $1,247.50 including 8.5% tax. Please confirm order #4892-B by 3:00 PM on March 15th. Email orders@shop.com or fax to 1-800-555-0199."
     },
     sentences: {
-      title: 'Pangram Sentences',
-      text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow.'
+      title: "Pangram Sentences",
+      text: "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow."
     }
   };
 
-  /* ── App state ─────────────────────────────────────────────────── */
-  var passageKey   = 'intermediate';
-  var targetWpm    = 40;
-  var minAccuracy  = 90;
-  var timeLimit    = 120;
-  var passage      = '';
+  let passageKey      = "beginner";
+  let targetWpm       = 40;
+  let minAccuracy     = 90;
+  let zestSubmitted   = false;
+  let finalScore      = 0;
+  let finalStats      = null;
+  let saveDebounce    = null;
 
-  var phase        = 'start';   // 'start' | 'typing' | 'results'
-  var typedText    = '';
-  var elapsedSec   = 0;
-  var submitted    = false;
-  var finalScore   = 0;
-  var finalStats   = null;
+  // Two-click reset confirm state
+  let pendingResetEl           = null;
+  let pendingResetOriginalText = "";
+  let pendingResetOriginalClass = "";
+  let pendingResetTimer        = null;
 
-  var countdownRef   = null;
-  var saveDebounce   = null;
-  var resetPending   = false;
-  var resetTimeout   = null;
-
-  /* ── DOM refs ──────────────────────────────────────────────────── */
-  var passageDisplay = document.getElementById('passage-display');
-  var typingInput    = document.getElementById('typing-input');
-  var progressFill   = document.getElementById('progress-fill');
-  var liveWpm        = document.getElementById('live-wpm');
-  var liveAcc        = document.getElementById('live-acc');
-  var liveTimer      = document.getElementById('live-timer');
-  var liveErrors     = document.getElementById('live-errors');
-  var timerChip      = document.getElementById('timer-chip');
-  var syncDot        = document.getElementById('sync-dot');
-  var syncLabel      = document.getElementById('sync-label');
-  var restoredBanner = document.getElementById('restored-banner');
-  var btnStart       = document.getElementById('btn-start');
-  var btnSubmit      = document.getElementById('btn-submit');
-  var btnReset       = document.getElementById('btn-reset');
-  var rBtnRow        = document.getElementById('r-btn-row');
-  var rSubmitted     = document.getElementById('r-submitted');
-
-  /* ── Entry point ───────────────────────────────────────────────── */
-  Zest.onReady(function () {
-    targetWpm   = Zest.getParameter('targetWpm',   40);
-    minAccuracy = Zest.getParameter('minAccuracy', 90);
-    timeLimit   = Zest.getParameter('timeLimit',   120);
-    passageKey  = Zest.getParameter('passage',     'intermediate');
-    if (!PASSAGES[passageKey]) passageKey = 'intermediate';
-    passage = PASSAGES[passageKey].text;
-
-    setupStartScreen();
-
-    Zest.onSyncStatus(function (status) {
-      syncDot.className = 'sync-dot ' + status;
-      var lbl = { synced: 'Saved', dirty: 'Unsaved', syncing: 'Saving\u2026', error: 'Save error' };
-      syncLabel.textContent = lbl[status] || '';
-    });
-
-    var saved = Zest.loadState();
-    if (saved && saved.passageKey === passageKey) {
-      restoreState(saved);
-    } else {
-      showScreen('start');
-    }
-  });
-
-  /* ── Screen helpers ────────────────────────────────────────────── */
-  function showScreen(name) {
-    document.querySelectorAll('.screen').forEach(function (s) {
-      s.classList.remove('active');
-    });
-    document.getElementById('screen-' + name).classList.add('active');
+  // ── Original functions (unchanged) ──────────────────────────────
+  function getLessonData() {
+    const lessonTitle        = (app.dataset.lessonTitle || "Typing Practice").trim();
+    const lessonInstructions = (app.dataset.lessonInstructions || "Type the passage exactly as shown.").trim();
+    const lessonText         = lessonSource.value.replace(/\r\n/g, "\n");
+    return { lessonTitle, lessonInstructions, lessonText };
   }
 
-  /* ── Start screen ──────────────────────────────────────────────── */
-  function setupStartScreen() {
-    var p = PASSAGES[passageKey];
-    document.getElementById('start-passage-title').textContent = p.title;
-    document.getElementById('passage-preview').textContent = p.text;
-    document.getElementById('badge-wpm').textContent   = targetWpm;
-    document.getElementById('badge-acc').textContent   = minAccuracy + '%';
-    document.getElementById('badge-time').textContent  = timeLimit + 's';
-    btnStart.onclick = function () { beginTyping(false); };
+  function formatSeconds(totalSeconds) {
+    const safe    = Math.max(0, Math.floor(totalSeconds));
+    const minutes = String(Math.floor(safe / 60)).padStart(2, "0");
+    const seconds = String(safe % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
   }
 
-  /* ── Typing screen ─────────────────────────────────────────────── */
-  function beginTyping(isResume) {
-    phase = 'typing';
-    if (!isResume) {
-      typedText  = '';
-      elapsedSec = 0;
-    }
-    showScreen('typing');
-    renderPassage();
-    updateLiveStats();
-    startCountdown();
-    typingInput.value    = typedText;
-    typingInput.disabled = false;
-    typingInput.focus();
-    typingInput.oninput  = handleInput;
-    typingInput.onpaste  = function (e) { e.preventDefault(); };
-    typingInput.ondrop   = function (e) { e.preventDefault(); };
+  function getElapsedSeconds() {
+    if (!state.started || !state.startTime) return 0;
+    return Math.max(0, Math.floor((Date.now() - state.startTime) / 1000));
   }
 
-  function handleInput() {
-    if (submitted) return;
-    /* cap input to passage length */
-    if (typingInput.value.length > passage.length) {
-      typingInput.value = typingInput.value.slice(0, passage.length);
+  function ensureAudioContext() {
+    if (!window.AudioContext && !window.webkitAudioContext) return null;
+    if (!state.audioContext) {
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      state.audioContext = new AudioCtor();
     }
-    typedText = typingInput.value;
-    renderPassage();
-    updateLiveStats();
-    scheduleAutosave();
-    if (typedText.length >= passage.length) {
-      finishActivity();
+    if (state.audioContext.state === "suspended") {
+      state.audioContext.resume().catch(() => {});
     }
+    return state.audioContext;
   }
 
-  function renderPassage() {
-    var html = '';
-    for (var i = 0; i < passage.length; i++) {
-      var ch  = passage[i];
-      var cls = 'char-pending';
-      if (i < typedText.length) {
-        cls = (typedText[i] === ch) ? 'char-correct' : 'char-incorrect';
-      } else if (i === typedText.length) {
-        cls = 'char-cursor';
+  function playErrorBeep() {
+    if (!state.soundEnabled) return;
+    const audioContext = ensureAudioContext();
+    if (!audioContext) return;
+    const oscillator = audioContext.createOscillator();
+    const gainNode   = audioContext.createGain();
+    const now        = audioContext.currentTime;
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(440, now);
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.05, now + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.1);
+  }
+
+  function calculateStats(typedText) {
+    const targetText  = state.lessonText;
+    const totalChars  = targetText.length;
+    const typedLength = typedText.length;
+    let correctChars  = 0;
+    for (let i = 0; i < typedLength; i += 1) {
+      if (typedText[i] === targetText[i]) {
+        correctChars += 1;
       }
-      var disp = (ch === ' ') ? '&nbsp;' : esc(ch);
-      html += '<span class="' + cls + '">' + disp + '</span>';
     }
-    passageDisplay.innerHTML = html;
-    var cursor = passageDisplay.querySelector('.char-cursor');
-    if (cursor) cursor.scrollIntoView({ block: 'nearest' });
-    var pct = typedText.length / passage.length * 100;
-    progressFill.style.width = Math.round(pct) + '%';
+    const activeSeconds = state.completed ? state.elapsedSeconds : getElapsedSeconds();
+    const accuracy      = typedLength === 0 ? 100 : Math.round((correctChars / typedLength) * 100);
+    const minutes       = Math.max(activeSeconds / 60, 1 / 60);
+    const wpm           = Math.max(0, Math.round((correctChars / 5) / minutes));
+    const progressChars = Math.min(typedLength, totalChars);
+    const progress      = totalChars === 0 ? 0 : Math.round((progressChars / totalChars) * 100);
+    const isComplete    = totalChars > 0 && typedLength >= totalChars;
+    return { totalChars, typedLength, correctChars, accuracy, wpm, progressChars, progress, isComplete };
   }
 
-  function updateLiveStats() {
-    var s = calcStats();
-    liveWpm.textContent    = s.wpm;
-    liveAcc.textContent    = s.accuracy + '%';
-    liveErrors.textContent = s.errors;
+  function setStatePill(text, status) {
+    els.statePill.textContent  = text;
+    els.statePill.dataset.state = status;
   }
 
-  function startCountdown() {
-    clearInterval(countdownRef);
-    /* startRef accounts for already-elapsed time on resume */
-    var startRef = Date.now() - elapsedSec * 1000;
-    countdownRef = setInterval(function () {
-      elapsedSec = Math.floor((Date.now() - startRef) / 1000);
-      var remaining = Math.max(0, timeLimit - elapsedSec);
-      var mm = Math.floor(remaining / 60);
-      var ss = String(remaining % 60).padStart(2, '0');
-      liveTimer.textContent = mm + ':' + ss;
-      timerChip.className   = 'stat-chip' + (remaining <= 10 ? ' danger' : remaining <= 30 ? ' warn' : '');
-      updateLiveStats();
-      /* periodic autosave every 10 s */
-      if (elapsedSec > 0 && elapsedSec % 10 === 0) persistState();
-      if (remaining <= 0) finishActivity();
-    }, 500);
+  function renderTargetText() {
+    const typedText  = els.input.value;
+    const targetText = state.lessonText;
+    const fragment   = document.createDocumentFragment();
+    let currentNode  = null;
+    for (let i = 0; i < targetText.length; i += 1) {
+      const span       = document.createElement("span");
+      span.className   = "cwa-char";
+      const targetChar = targetText[i];
+      const typedChar  = typedText[i];
+      if (typedChar == null) {
+        if (i === typedText.length) {
+          span.classList.add("cwa-char--current");
+          currentNode = span;
+        } else {
+          span.classList.add("cwa-char--pending");
+        }
+      } else if (typedChar === targetChar) {
+        span.classList.add("cwa-char--correct");
+      } else {
+        span.classList.add("cwa-char--incorrect");
+      }
+      span.textContent = targetChar === " " ? "\u00A0" : targetChar;
+      fragment.appendChild(span);
+    }
+    els.textDisplay.innerHTML = "";
+    els.textDisplay.appendChild(fragment);
+    if (currentNode) {
+      currentNode.scrollIntoView({ block: "nearest", inline: "nearest" });
+    } else {
+      els.textDisplay.scrollTop = els.textDisplay.scrollHeight;
+    }
   }
 
-  function finishActivity() {
-    clearInterval(countdownRef);
-    typingInput.disabled = true;
-    typingInput.oninput  = null;
-    finalStats = calcStats();
-    finalScore = scoreCalc(finalStats);
-    phase = 'results';
+  function updateStats() {
+    if (!state.completed) {
+      state.elapsedSeconds = getElapsedSeconds();
+    }
+    const stats = calculateStats(els.input.value);
+    els.time.textContent        = formatSeconds(state.elapsedSeconds);
+    els.accuracy.textContent    = `${stats.accuracy}%`;
+    els.wpm.textContent         = String(stats.wpm);
+    els.progressStat.textContent = `${stats.progress}%`;
+    els.progressPill.textContent = `${stats.progressChars} / ${stats.totalChars} characters`;
+    return stats;
+  }
+
+  function updateSummary() {
+    const stats = calculateStats(els.input.value);
+    els.summaryTime.textContent     = formatSeconds(state.elapsedSeconds);
+    els.summaryAccuracy.textContent = `${stats.accuracy}%`;
+    els.summaryWpm.textContent      = String(stats.wpm);
+    els.summaryChars.textContent    = String(stats.typedLength);
+  }
+
+  function stopTimer() {
+    if (state.timerId) {
+      clearInterval(state.timerId);
+      state.timerId = null;
+    }
+  }
+
+  // ── Modified: finishSession adds score + submit UI ───────────────
+  function finishSession() {
+    if (state.completed) return;
+    state.elapsedSeconds = getElapsedSeconds();
+    state.completed      = true;
+    state.started        = false;
+    stopTimer();
+    updateStats();
+    updateSummary();
+    els.summary.hidden = false;
+    els.input.disabled = true;
+    setStatePill("Lesson complete", "complete");
+    els.finishPill.textContent = "Last character typed";
+
+    // Compute score
+    const raw = calculateStats(els.input.value);
+    finalStats = {
+      wpm:             raw.wpm,
+      accuracy:        raw.accuracy,
+      durationSeconds: state.elapsedSeconds,
+      errors:          raw.typedLength - raw.correctChars,
+      keysTyped:       raw.typedLength
+    };
+    finalScore = computeScore(finalStats);
     persistState();
-    showResultsScreen();
+    showScoreAndSubmitUI();
   }
 
-  /* ── Results screen ────────────────────────────────────────────── */
-  function showResultsScreen() {
-    var s = finalStats;
-    var sc = finalScore;
+  function startTimerIfNeeded() {
+    if (state.started || state.completed) return;
+    state.started   = true;
+    state.startTime = Date.now();
+    els.summary.hidden = true;
+    setStatePill("In progress", "running");
+    els.finishPill.textContent = "Type to the last character";
+    state.timerId = setInterval(() => {
+      const stats = updateStats();
+      if (stats.isComplete) {
+        finishSession();
+      }
+    }, 250);
+  }
 
-    /* score ring color */
-    var ring = document.getElementById('score-ring');
-    ring.className = 'score-ring ' +
-      (sc >= 90 ? 'grade-a' : sc >= 70 ? 'grade-b' : sc >= 50 ? 'grade-c' : 'grade-f');
+  function resetSession() {
+    stopTimer();
+    state.started            = false;
+    state.completed          = false;
+    state.startTime          = null;
+    state.elapsedSeconds     = 0;
+    state.lastIncorrectIndex = -1;
+    els.input.value    = "";
+    els.input.disabled = false;
+    els.summary.hidden = true;
+    setStatePill("Ready", "ready");
+    els.finishPill.textContent = "Type to the last character";
+    updateStats();
+    renderTargetText();
+    hideSubmitUI();
+  }
 
-    document.getElementById('r-score').textContent    = sc;
-    document.getElementById('r-headline').textContent =
-      sc >= 90 ? 'Excellent Work!' : sc >= 70 ? 'Good Job!' : sc >= 50 ? 'Keep Practicing!' : 'Try Again!';
-    document.getElementById('r-subline').textContent  =
-      submitted ? 'Your score has been submitted.' : 'Review your results, then submit when ready.';
+  function loadLesson() {
+    const data       = getLessonData();
+    state.lessonText = data.lessonText;
+    els.lessonTitle.textContent        = data.lessonTitle;
+    els.lessonInstructions.textContent = data.lessonInstructions;
+    const preview    = state.lessonText.replace(/\n+/g, " ").trim();
+    els.lessonPreview.value = preview.length > 120 ? `${preview.slice(0, 117)}...` : preview;
+    renderTargetText();
+  }
 
-    document.getElementById('r-wpm').textContent  = s.wpm + ' WPM';
-    document.getElementById('r-acc').textContent  = s.accuracy + '%';
-    document.getElementById('r-dur').textContent  = fmtDuration(s.durationSeconds);
-    document.getElementById('r-errs').textContent = s.errors;
-    document.getElementById('r-keys').textContent = s.keysTyped;
-
-    /* score breakdown note */
-    var wpmPts = Math.round(Math.min(s.wpm / targetWpm, 1) * 60);
-    var accPts = Math.round((s.accuracy / 100) * 40);
-    var noteEl = document.getElementById('r-breakdown');
-    var note   = 'Score breakdown:\n' +
-      '  Speed  (' + s.wpm + ' / ' + targetWpm + ' WPM) \u2192 ' + wpmPts + ' / 60 pts\n' +
-      '  Accuracy (' + s.accuracy + '%) \u2192 ' + accPts + ' / 40 pts';
-    if (s.accuracy < minAccuracy) {
-      note += '\n\u26A0\uFE0F Accuracy below ' + minAccuracy + '% minimum \u2014 score was reduced.';
-      noteEl.className = 'score-note warn-note';
-    } else {
-      noteEl.className = 'score-note';
+  function handleIncorrectSound() {
+    const typedText = els.input.value;
+    if (!typedText.length) {
+      state.lastIncorrectIndex = -1;
+      return;
     }
-    noteEl.textContent = note;
-
-    if (submitted) {
-      rBtnRow.style.display    = 'none';
-      rSubmitted.style.display = 'block';
+    const currentIndex = typedText.length - 1;
+    if (currentIndex === state.lastIncorrectIndex) return;
+    if (typedText[currentIndex] !== state.lessonText[currentIndex]) {
+      state.lastIncorrectIndex = currentIndex;
+      playErrorBeep();
     } else {
-      rBtnRow.style.display    = 'flex';
-      rSubmitted.style.display = 'none';
-      btnSubmit.disabled       = false;
-      btnSubmit.textContent    = 'Submit Score';
-      btnSubmit.onclick        = handleSubmit;
-      btnReset.className       = 'btn btn-danger-outline';
-      btnReset.textContent     = 'Start Over';
-      btnReset.onclick         = handleResetClick;
+      state.lastIncorrectIndex = -1;
     }
+  }
 
-    showScreen('results');
+  function handleTyping() {
+    if (state.completed) return;
+    startTimerIfNeeded();
+    handleIncorrectSound();
+    const stats = updateStats();
+    renderTargetText();
+    scheduleAutosave();
+    if (stats.isComplete) {
+      finishSession();
+    }
+  }
+
+  function enforceLengthLimit(event) {
+    if (event.target.value.length > state.lessonText.length) {
+      event.target.value = event.target.value.slice(0, state.lessonText.length);
+    }
+  }
+
+  // ── Zest: scoring ────────────────────────────────────────────────
+  function computeScore(stats) {
+    const wpmRatio = Math.min(stats.wpm / targetWpm, 1.0);
+    const accRatio = stats.accuracy / 100;
+    let score = wpmRatio * 0.6 + accRatio * 0.4;
+    // Penalty if accuracy falls below minimum threshold
+    if (stats.accuracy < minAccuracy) {
+      const shortfall = (minAccuracy - stats.accuracy) / minAccuracy;
+      score *= (1 - shortfall * 0.75);
+    }
+    return Math.round(Math.max(0, Math.min(1, score)) * 100);
+  }
+
+  // ── Zest: submit UI ──────────────────────────────────────────────
+  function showScoreAndSubmitUI() {
+    const wpmPts = Math.round(Math.min(finalStats.wpm / targetWpm, 1) * 60);
+    const accPts = Math.round((finalStats.accuracy / 100) * 40);
+    els.scoreValue.textContent = `${finalScore} / 100`;
+    const noteLines = [
+      `Speed:    ${finalStats.wpm} WPM  →  ${wpmPts} / 60 pts`,
+      `Accuracy: ${finalStats.accuracy}%  →  ${accPts} / 40 pts`
+    ];
+    if (finalStats.accuracy < minAccuracy) {
+      noteLines.push(`⚠ Accuracy below ${minAccuracy}% minimum — score reduced`);
+      els.scoreNote.className = "cwa-score-note cwa-warn";
+    } else {
+      els.scoreNote.className = "cwa-score-note";
+    }
+    els.scoreNote.textContent = noteLines.join("\n");
+    els.scoreArea.style.display = "";
+
+    if (zestSubmitted) {
+      els.submittedArea.style.display = "";
+    } else {
+      els.submitArea.style.display = "";
+    }
+  }
+
+  function hideSubmitUI() {
+    els.scoreArea.style.display    = "none";
+    els.submitArea.style.display   = "none";
+    els.submittedArea.style.display = "none";
   }
 
   function handleSubmit() {
-    if (submitted) return;
-    submitted = true;
-    btnSubmit.disabled    = true;
-    btnSubmit.textContent = 'Submitting\u2026';
-
-    persistState();
+    if (zestSubmitted) return;
+    els.submitButton.disabled    = true;
+    els.submitButton.textContent = "Submitting…";
 
     Zest.submitScore(finalScore, {
       maxScore: 100,
       artifacts: {
-        stats: finalStats,
-        passageKey: passageKey,
+        stats:        finalStats,
+        passageKey:   passageKey,
         passageTitle: PASSAGES[passageKey].title,
-        targetWpm: targetWpm,
-        minAccuracy: minAccuracy,
-        timeLimit: timeLimit,
-        completedAt: new Date().toISOString()
+        targetWpm:    targetWpm,
+        minAccuracy:  minAccuracy,
+        completedAt:  new Date().toISOString()
       },
-      comment: 'WPM: ' + finalStats.wpm + ', Accuracy: ' + finalStats.accuracy + '%, Score: ' + finalScore + '/100'
-    }).then(function (result) {
+      comment: `WPM: ${finalStats.wpm}, Accuracy: ${finalStats.accuracy}%, Score: ${finalScore}/100`
+    }).then((result) => {
       if (result.success) {
+        zestSubmitted = true;
         persistState();
-        rBtnRow.style.display    = 'none';
-        rSubmitted.style.display = 'block';
-        document.getElementById('r-subline').textContent = 'Your score has been submitted.';
+        els.submitArea.style.display    = "none";
+        els.submittedArea.style.display = "";
       } else {
-        submitted = false;
-        btnSubmit.disabled    = false;
-        btnSubmit.textContent = 'Retry Submit';
+        els.submitButton.disabled    = false;
+        els.submitButton.textContent = "Retry Submit";
       }
-    }).catch(function () {
-      submitted = false;
-      btnSubmit.disabled    = false;
-      btnSubmit.textContent = 'Retry Submit';
+    }).catch(() => {
+      els.submitButton.disabled    = false;
+      els.submitButton.textContent = "Retry Submit";
     });
   }
 
-  /* ── Two-click reset ───────────────────────────────────────────── */
-  function handleResetClick() {
-    if (!resetPending) {
-      resetPending = true;
-      btnReset.textContent = 'Confirm Reset?';
-      btnReset.className   = 'btn btn-danger-confirm';
-      resetTimeout = setTimeout(function () {
-        resetPending = false;
-        btnReset.textContent = 'Start Over';
-        btnReset.className   = 'btn btn-danger-outline';
-      }, 4000);
+  // ── Zest: two-click reset ────────────────────────────────────────
+  function handleResetClick(btn) {
+    // No confirmation needed if session hasn't been completed yet
+    if (!state.completed && !zestSubmitted) {
+      executeReset();
+      return;
+    }
+
+    if (pendingResetEl === btn) {
+      // Second click — confirmed
+      clearTimeout(pendingResetTimer);
+      restoreResetButton();
+      executeReset();
     } else {
-      clearTimeout(resetTimeout);
-      resetPending = false;
-      doReset();
+      // Cancel any previous pending button
+      if (pendingResetEl) restoreResetButton();
+      // Arm this button
+      pendingResetEl            = btn;
+      pendingResetOriginalText  = btn.textContent;
+      pendingResetOriginalClass = btn.className;
+      btn.textContent = "Confirm?";
+      btn.className   = btn.className
+        .replace("cwa-button--primary", "cwa-button--confirming")
+        .replace("cwa-button--secondary", "cwa-button--confirming");
+      pendingResetTimer = setTimeout(restoreResetButton, 4000);
     }
   }
 
-  function doReset() {
-    clearInterval(countdownRef);
-    Zest.clearState();
-    phase      = 'start';
-    typedText  = '';
-    elapsedSec = 0;
-    submitted  = false;
-    finalScore = 0;
-    finalStats = null;
-    typingInput.disabled = false;
-    typingInput.value    = '';
-    typingInput.oninput  = null;
-    restoredBanner.classList.remove('show');
-    showScreen('start');
+  function restoreResetButton() {
+    clearTimeout(pendingResetTimer);
+    if (pendingResetEl) {
+      pendingResetEl.textContent = pendingResetOriginalText;
+      pendingResetEl.className   = pendingResetOriginalClass;
+      pendingResetEl = null;
+    }
   }
 
-  /* ── State persistence ─────────────────────────────────────────── */
+  function executeReset() {
+    Zest.clearState();
+    zestSubmitted = false;
+    finalScore    = 0;
+    finalStats    = null;
+    els.restoredBanner.classList.remove("cwa-visible");
+    ensureAudioContext();
+    resetSession();
+    els.input.focus();
+  }
+
+  // ── Zest: state persistence ──────────────────────────────────────
   function gatherState() {
     return {
-      passageKey:  passageKey,
-      phase:       phase,
-      typedText:   typedText,
-      elapsedSec:  elapsedSec,
-      submitted:   submitted,
-      finalScore:  finalScore,
-      finalStats:  finalStats
+      passageKey:    passageKey,
+      typedText:     els.input.value,
+      elapsedSeconds: state.elapsedSeconds,
+      completed:     state.completed,
+      submitted:     zestSubmitted,
+      finalScore:    finalScore,
+      finalStats:    finalStats
     };
-  }
-
-  function restoreState(saved) {
-    phase      = saved.phase      || 'start';
-    typedText  = saved.typedText  || '';
-    elapsedSec = saved.elapsedSec || 0;
-    submitted  = saved.submitted  || false;
-    finalScore = saved.finalScore || 0;
-    finalStats = saved.finalStats || null;
-
-    if (phase === 'typing') {
-      restoredBanner.classList.add('show');
-      beginTyping(true);
-    } else if (phase === 'results' && finalStats) {
-      showResultsScreen();
-    } else {
-      showScreen('start');
-    }
   }
 
   function persistState() {
@@ -787,51 +1051,92 @@
     saveDebounce = setTimeout(persistState, 1500);
   }
 
-  /* ── Stats & scoring ───────────────────────────────────────────── */
-  function calcStats() {
-    var typed   = typedText;
-    var elapsed = elapsedSec;
-    var mins    = elapsed / 60;
-    var correct = 0;
-    for (var i = 0; i < typed.length; i++) {
-      if (i < passage.length && typed[i] === passage[i]) correct++;
+  function restoreFromSaved(saved) {
+    if (saved.completed && saved.finalStats) {
+      // Restore completed session
+      els.input.value      = saved.typedText || "";
+      state.elapsedSeconds = saved.elapsedSeconds || 0;
+      state.completed      = true;
+      state.started        = false;
+      zestSubmitted        = saved.submitted || false;
+      finalScore           = saved.finalScore || 0;
+      finalStats           = saved.finalStats;
+      updateStats();
+      renderTargetText();
+      updateSummary();
+      els.summary.hidden = false;
+      els.input.disabled = true;
+      setStatePill("Lesson complete", "complete");
+      els.finishPill.textContent = "Last character typed";
+      showScoreAndSubmitUI();
+    } else if (saved.typedText) {
+      // Restore in-progress session — show progress, let student click Start
+      els.input.value = saved.typedText;
+      updateStats();
+      renderTargetText();
+      els.restoredBanner.classList.add("cwa-visible");
     }
-    var errors   = typed.length - correct;
-    var wpm      = mins > 0 ? Math.round((correct / 5) / mins) : 0;
-    var accuracy = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
-    return {
-      wpm:             wpm,
-      accuracy:        accuracy,
-      durationSeconds: Math.round(elapsed),
-      errors:          errors,
-      keysTyped:       typed.length
-    };
   }
 
-  function scoreCalc(s) {
-    var wpmRatio = Math.min(s.wpm / targetWpm, 1.0);
-    var accRatio = s.accuracy / 100;
-    var raw      = wpmRatio * 0.6 + accRatio * 0.4;
-    /* penalty for accuracy below minimum */
-    if (s.accuracy < minAccuracy) {
-      var shortfall = (minAccuracy - s.accuracy) / minAccuracy;
-      raw *= (1 - shortfall * 0.75);
+  // ── init ─────────────────────────────────────────────────────────
+  function init() {
+    loadLesson();
+    updateStats();
+
+    els.startButton.addEventListener("click", () => {
+      handleResetClick(els.startButton);
+      // If no confirmation was needed, focus was set by executeReset.
+      // If armed for confirm, do nothing yet.
+    });
+    els.clearButton.addEventListener("click", () => {
+      handleResetClick(els.clearButton);
+    });
+    els.soundToggle.addEventListener("change", () => {
+      state.soundEnabled = els.soundToggle.checked;
+      if (state.soundEnabled) ensureAudioContext();
+    });
+    els.input.addEventListener("input", (event) => {
+      enforceLengthLimit(event);
+      handleTyping();
+    });
+    els.input.addEventListener("paste", (event) => {
+      event.preventDefault();
+    });
+    els.textDisplay.addEventListener("click", () => {
+      els.input.focus();
+    });
+    els.submitButton.addEventListener("click", handleSubmit);
+    els.resetButton.addEventListener("click", () => {
+      handleResetClick(els.resetButton);
+    });
+  }
+
+  // ── Zest entry point ─────────────────────────────────────────────
+  Zest.onReady(function () {
+    targetWpm   = Zest.getParameter("targetWpm",   40);
+    minAccuracy = Zest.getParameter("minAccuracy", 90);
+    passageKey  = Zest.getParameter("passage",     "beginner");
+    if (!PASSAGES[passageKey]) passageKey = "beginner";
+
+    // Populate lesson source with selected passage before init
+    lessonSource.value              = PASSAGES[passageKey].text;
+    app.dataset.lessonTitle         = PASSAGES[passageKey].title;
+    app.dataset.lessonInstructions  = "Type the passage exactly as shown. Your score is based on speed and accuracy.";
+
+    Zest.onSyncStatus(function (status) {
+      els.syncDot.className   = "cwa-sync-dot " + status;
+      const labels = { synced: "Saved", dirty: "Unsaved changes", syncing: "Saving\u2026", error: "Save error" };
+      els.syncLabel.textContent = labels[status] || "";
+    });
+
+    init();
+
+    const saved = Zest.loadState();
+    if (saved && saved.passageKey === passageKey) {
+      restoreFromSaved(saved);
     }
-    return Math.round(Math.max(0, Math.min(1, raw)) * 100);
-  }
-
-  /* ── Helpers ───────────────────────────────────────────────────── */
-  function esc(ch) {
-    var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-    return map[ch] !== undefined ? map[ch] : ch;
-  }
-
-  function fmtDuration(sec) {
-    var m = Math.floor(sec / 60), s = sec % 60;
-    return m > 0 ? m + 'm ' + s + 's' : s + 's';
-  }
-
+  });
 })();
-</script>
+  </script>
 </body>
 </html>
