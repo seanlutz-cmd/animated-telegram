@@ -29,6 +29,12 @@
       "min": 50,
       "max": 100
     },
+    {
+      "key": "passage",
+      "type": "string",
+      "label": "Passage (beginner, intermediate, advanced, numbers, sentences)",
+      "default": "beginner"
+    }
   ],
   "tags": ["keyboarding", "typing", "auto-graded"]
 }
