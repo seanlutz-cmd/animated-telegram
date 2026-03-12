@@ -909,7 +909,7 @@ all lads had salad; glad lad; all`
   function computeScore(stats) {
     const wpmRatio = Math.min(stats.wpm / targetWpm, 1.0);
     const accRatio = stats.accuracy / 100;
-    let score = wpmRatio * 0.6 + accRatio * 0.4;
+    let score = wpmRatio * 0.4 + accRatio * 0.6;
     // Penalty if accuracy falls below minimum threshold
     if (stats.accuracy < minAccuracy) {
       const shortfall = (minAccuracy - stats.accuracy) / minAccuracy;
@@ -920,12 +920,12 @@ all lads had salad; glad lad; all`
 
   // ── Zest: submit UI ──────────────────────────────────────────────
   function showScoreAndSubmitUI() {
-    const wpmPts = Math.round(Math.min(finalStats.wpm / targetWpm, 1) * 60);
-    const accPts = Math.round((finalStats.accuracy / 100) * 40);
+    const wpmPts = Math.round(Math.min(finalStats.wpm / targetWpm, 1) * 40);
+    const accPts = Math.round((finalStats.accuracy / 100) * 60);
     els.scoreValue.textContent = `${finalScore} / 100`;
     const noteLines = [
-      `Speed:    ${finalStats.wpm} WPM  →  ${wpmPts} / 60 pts`,
-      `Accuracy: ${finalStats.accuracy}%  →  ${accPts} / 40 pts`
+      `Speed:    ${finalStats.wpm} WPM  →  ${wpmPts} / 40 pts`,
+      `Accuracy: ${finalStats.accuracy}%  →  ${accPts} / 60 pts`
     ];
     if (finalStats.accuracy < minAccuracy) {
       noteLines.push(`⚠ Accuracy below ${minAccuracy}% minimum — score reduced`);

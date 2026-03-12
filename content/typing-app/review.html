@@ -316,11 +316,11 @@
     /* Score breakdown */
     var noteEl = document.getElementById('rv-breakdown');
     if (stats.wpm !== undefined && typeof targetWpm === 'number') {
-      var wpmPts = Math.round(Math.min(stats.wpm / targetWpm, 1) * 60);
-      var accPts = Math.round((stats.accuracy / 100) * 40);
+      var wpmPts = Math.round(Math.min(stats.wpm / targetWpm, 1) * 40);
+      var accPts = Math.round((stats.accuracy / 100) * 60);
       var note   = 'Score breakdown:\n' +
-        '  Speed    (' + stats.wpm + ' WPM / target ' + targetWpm + ' WPM)  \u2192  ' + wpmPts + ' / 60 pts\n' +
-        '  Accuracy (' + stats.accuracy + '%)  \u2192  ' + accPts + ' / 40 pts';
+        '  Speed    (' + stats.wpm + ' WPM / target ' + targetWpm + ' WPM)  \u2192  ' + wpmPts + ' / 40 pts\n' +
+        '  Accuracy (' + stats.accuracy + '%)  \u2192  ' + accPts + ' / 60 pts';
       if (typeof minAccuracy === 'number' && stats.accuracy < minAccuracy) {
         note += '\n\u26A0 Accuracy below ' + minAccuracy + '% minimum \u2014 score was reduced.';
         noteEl.className = 'score-note warn';

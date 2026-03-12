@@ -17,7 +17,7 @@
       "key": "targetWpm",
       "type": "number",
       "label": "Target WPM (earns full speed credit)",
-      "default": 40,
+      "default": 35,
       "min": 10,
       "max": 150
     },
@@ -29,19 +29,6 @@
       "min": 50,
       "max": 100
     },
-    {
-      "key": "passage",
-      "type": "select",
-      "label": "Typing Passage",
-      "default": "beginner",
-      "options": [
-        { "value": "beginner",     "label": "Beginner — Home Row Focus" },
-        { "value": "intermediate", "label": "Intermediate — Common Words" },
-        { "value": "advanced",     "label": "Advanced — Varied Text" },
-        { "value": "numbers",      "label": "Numbers and Symbols" },
-        { "value": "sentences",    "label": "Pangram Sentences" }
-      ]
-    }
   ],
   "tags": ["keyboarding", "typing", "auto-graded"]
 }
