@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Typing Practice – Lake Trip</title>
+  <style>
+    :root {
+      --white: #ffffff;
+      --cardinal: #960000;
+      --near-black: #131313;
+      --warm-gray: #605f5e;
+      --sky: #25aefa;
+      --navy: #1b3168;
+      --surface: #ffffff;
+      --border: #d8dde8;
+      --success: #147a3f;
+      --danger: #960000;
+      --shadow: 0 10px 24px rgba(19,19,19,0.08);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --focus: 0 0 0 3px rgba(37,174,250,0.28);
+      --font: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      background: linear-gradient(180deg, #f7f8fb 0%, #eef4fb 100%);
+      color: var(--near-black);
+      font-family: var(--font);
+    }
+
+    body { min-height: 100vh; }
+
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--navy), var(--cardinal));
+      color: var(--white);
+      display: grid;
+      gap: 6px;
+    }
+
+    .hero h1 { margin: 0; font-size: clamp(1.3rem, 2.5vw, 1.8rem); line-height: 1.2; }
+    .hero p  { margin: 0; opacity: 0.92; font-size: 0.95rem; line-height: 1.5; }
+
+    /* Stats bar */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat { padding: 14px 16px; display: grid; gap: 4px; }
+
+    .stat__label {
+      font-size: 0.78rem;
+      color: var(--warm-gray);
+      font-weight: 700;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stat__value {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 800;
+      margin: 0;
+      color: var(--navy);
+    }
+
+    .stat__hint { font-size: 0.78rem; color: var(--warm-gray); margin: 0; }
+
+    /* Controls */
+    .controls {
+      padding: 16px 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .label {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 0.92rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .btn-row { display: flex; gap: 10px; }
+
+    .btn {
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: transform 0.1s, opacity 0.1s;
+      white-space: nowrap;
+      min-height: 42px;
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .btn--primary   { background: var(--cardinal); color: var(--white); border-color: var(--cardinal); }
+    .btn--secondary { background: var(--white); color: var(--navy); border-color: var(--navy); }
+    .btn--success   { background: var(--success); color: var(--white); border-color: var(--success); font-size: 1rem; padding: 12px 24px; }
+
+    /* Status row */
+    .status-row {
+      padding: 12px 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      background: #f3f6fb;
+      color: var(--navy);
+    }
+
+    .pill[data-state="ready"]     { background: #edf6ff; color: var(--navy); }
+    .pill[data-state="running"]   { background: #eefbf3; color: var(--success); border-color: #b3e8c9; }
+    .pill[data-state="complete"]  { background: #fff3f3; color: var(--cardinal); border-color: #f5c0c0; }
+    .pill[data-state="submitted"] { background: #eefbf3; color: var(--success); border-color: #b3e8c9; }
+
+    /* Progress bar */
+    .progress-wrap { padding: 12px 20px 16px; }
+
+    .progress-track {
+      height: 7px;
+      background: #e8ecf5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy), var(--sky));
+      border-radius: 999px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* Typing area */
+    .typing-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px 20px 20px;
+    }
+
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .text-display {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #fbfcfe;
+      padding: 14px 16px;
+      min-height: 360px;
+      max-height: 420px;
+      font-size: 0.98rem;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+    }
+
+    .char { padding: 0 1px; border-radius: 3px; }
+    .char--pending   { color: #8a91a0; }
+    .char--current   { background: rgba(37,174,250,0.2); outline: 1.5px solid rgba(37,174,250,0.65); border-radius: 2px; }
+    .char--correct   { color: var(--success); }
+    .char--incorrect { color: var(--white); background: var(--danger); }
+
+    .textarea {
+      width: 100%;
+      min-height: 360px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font: inherit;
+      font-size: 0.98rem;
+      padding: 14px 16px;
+      resize: vertical;
+      line-height: 1.75;
+      background: var(--white);
+      color: var(--near-black);
+    }
+
+    .textarea:focus { outline: none; box-shadow: var(--focus); border-color: var(--sky); }
+    .textarea:disabled { background: #f5f7fb; color: #9aa0ad; cursor: not-allowed; }
+
+    /* Results modal */
+    .results-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(19,19,19,0.55);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .results-overlay.show { display: flex; }
+
+    .results-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(19,19,19,0.28);
+      padding: 28px;
+      max-width: 520px;
+      width: 100%;
+      display: grid;
+      gap: 18px;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .results-card h2 { margin: 0; font-size: 1.4rem; color: var(--navy); text-align: center; }
+
+    .score-display {
+      text-align: center;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--navy), var(--cardinal));
+      border-radius: var(--radius-sm);
+      color: var(--white);
+    }
+
+    .score-pct  { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+    .score-lbl  { font-size: 0.88rem; opacity: 0.9; margin-top: 4px; }
+
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .result-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .r-label {
+      font-size: 0.78rem;
+      color: var(--warm-gray);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .r-value  { font-size: 1.25rem; font-weight: 800; color: var(--navy); display: block; }
+    .r-target { font-size: 0.8rem; margin-top: 3px; display: block; color: var(--warm-gray); }
+
+    .result-item.met    .r-value { color: var(--success); }
+    .result-item.missed .r-value { color: var(--cardinal); }
+    .r-target.met    { color: var(--success); }
+    .r-target.missed { color: var(--cardinal); }
+
+    .submit-area { display: grid; gap: 10px; }
+
+    .submit-note { font-size: 0.88rem; color: var(--warm-gray); text-align: center; margin: 0; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    @media (max-width: 680px) {
+      .stats        { grid-template-columns: repeat(2, 1fr); }
+      .typing-area  { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr; }
+      .btn-row      { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+
+    <section class="card hero" aria-labelledby="lesson-title">
+      <h1 id="lesson-title">Keyboarding Practice</h1>
+      <p>Type the passage exactly as shown. You will be graded on speed (WPM) and accuracy.
+         Press <strong>Start</strong> when you are ready.</p>
+    </section>
+
+    <section class="stats" aria-label="Typing statistics">
+      <article class="card stat">
+        <p class="stat__label">Time</p>
+        <p class="stat__value" id="stat-time">0:00</p>
+        <p class="stat__hint">Elapsed</p>
+      </article>
+      <article class="card stat">
+        <p class="stat__label">WPM</p>
+        <p class="stat__value" id="stat-wpm">—</p>
+        <p class="stat__hint">Words / min</p>
+      </article>
+      <article class="card stat">
+        <p class="stat__label">Accuracy</p>
+        <p class="stat__value" id="stat-accuracy">—</p>
+        <p class="stat__hint">Correct keys</p>
+      </article>
+      <article class="card stat">
+        <p class="stat__label">Progress</p>
+        <p class="stat__value" id="stat-progress">0%</p>
+        <p class="stat__hint">Passage</p>
+      </article>
+    </section>
+
+    <div class="card">
+      <div class="controls">
+        <div>
+          <span class="label">Session controls</span>
+          <div class="btn-row">
+            <button class="btn btn--primary"   id="btn-start"   type="button">Start</button>
+            <button class="btn btn--secondary" id="btn-restart" type="button">Restart</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <span class="pill" id="state-pill"    data-state="ready">● Ready</span>
+        <span class="pill" id="progress-pill">0 / 0 chars</span>
+      </div>
+
+      <div class="progress-wrap" aria-hidden="true">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="typing-area">
+        <div class="panel">
+          <h2>Target text</h2>
+          <div
+            class="text-display"
+            id="text-display"
+            aria-live="polite"
+            aria-label="Text to type"
+            tabindex="0"
+          ></div>
+        </div>
+
+        <div class="panel">
+          <h2>Your typing</h2>
+          <label class="sr-only" for="typing-input">Type the lesson text here</label>
+          <textarea
+            class="textarea"
+            id="typing-input"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            autocorrect="off"
+            disabled
+            placeholder="Click Start, then type here…"
+            aria-describedby="input-help"
+          ></textarea>
+          <p id="input-help" class="sr-only">Type the passage shown on the left. Errors are highlighted in red.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Results modal -->
+  <div class="results-overlay" id="results-overlay" role="dialog" aria-modal="true" aria-labelledby="results-title">
+    <div class="results-card">
+      <h2 id="results-title">Session Complete!</h2>
+
+      <div class="score-display">
+        <div class="score-pct" id="r-score">—</div>
+        <div class="score-lbl">Final Score</div>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-item" id="ri-wpm">
+          <span class="r-label">WPM</span>
+          <span class="r-value" id="r-wpm">—</span>
+          <span class="r-target" id="r-wpm-target">Target: 30</span>
+        </div>
+        <div class="result-item" id="ri-accuracy">
+          <span class="r-label">Accuracy</span>
+          <span class="r-value" id="r-accuracy">—</span>
+          <span class="r-target" id="r-accuracy-target">Target: 95%</span>
+        </div>
+        <div class="result-item">
+          <span class="r-label">Time</span>
+          <span class="r-value" id="r-time">—</span>
+          <span class="r-target">Elapsed</span>
+        </div>
+        <div class="result-item">
+          <span class="r-label">Errors</span>
+          <span class="r-value" id="r-errors">—</span>
+          <span class="r-target">Mistyped characters</span>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button class="btn btn--success" id="btn-submit"    type="button">Submit to Gradebook</button>
+        <button class="btn btn--secondary" id="btn-try-again" type="button">Try Again</button>
+        <p class="submit-note" id="submit-note">Review your results, then submit when ready.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://lti.testyturtle.dev/public/zest-bridge.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    const TARGET_TEXT =
+`We are on a fun trip to a big lake, and we all feel glad to go.
+The sun is up, and the air is warm as we pack up our bags.
+Dad has a map, and Mom has a plan, and we all hop in the van.
+
+We ride on a long road, and we see red barns and green trees.
+A fox runs by, and we all look and laugh at the fast red fox!
+The van hums on, and we sing a song as we go along.
+
+At the lake, we jump out and run to the dock by the water.
+The sand is soft, and the waves are slow and calm on the shore.
+We toss a ball, and we skip rocks, and we splash in the cool lake.
+
+You can sit in the sun, or run and play with a pal.
+We all feel glad and free and full of fun at the lake.
+As the day ends, we pack up slow and head back home again.
+
+It was a good day, and we all cannot wait to go again!`;
+
+    // DOM refs
+    const elStatTime     = document.getElementById('stat-time');
+    const elStatWpm      = document.getElementById('stat-wpm');
+    const elStatAcc      = document.getElementById('stat-accuracy');
+    const elStatProg     = document.getElementById('stat-progress');
+    const elStatePill    = document.getElementById('state-pill');
+    const elProgressPill = document.getElementById('progress-pill');
+    const elProgressBar  = document.getElementById('progress-bar');
+    const elDisplay      = document.getElementById('text-display');
+    const elInput        = document.getElementById('typing-input');
+    const elBtnStart     = document.getElementById('btn-start');
+    const elBtnRestart   = document.getElementById('btn-restart');
+    const elOverlay      = document.getElementById('results-overlay');
+    const elBtnSubmit    = document.getElementById('btn-submit');
+    const elBtnTryAgain  = document.getElementById('btn-try-again');
+    const elSubmitNote   = document.getElementById('submit-note');
+    const elRScore       = document.getElementById('r-score');
+    const elRWpm         = document.getElementById('r-wpm');
+    const elRWpmTgt      = document.getElementById('r-wpm-target');
+    const elRAccuracy    = document.getElementById('r-accuracy');
+    const elRAccTgt      = document.getElementById('r-accuracy-target');
+    const elRTime        = document.getElementById('r-time');
+    const elRErrors      = document.getElementById('r-errors');
+    const elRiWpm        = document.getElementById('ri-wpm');
+    const elRiAcc        = document.getElementById('ri-accuracy');
+
+    // State
+    let appState     = 'idle';
+    let startTime    = null;
+    let elapsedMs    = 0;
+    let timerHandle  = null;
+    let saveHandle   = null;
+    let keysTyped    = 0;
+    let submitted    = false;
+    let finalStats   = null;
+    let targetWpm    = 30;
+    let targetAcc    = 95;
+
+    // ── Init ─────────────────────────────────────────────────────────────
+    async function init() {
+      if (window.Zest) {
+        targetWpm = Number(Zest.getParameter('targetWpm', 30));
+        targetAcc = Number(Zest.getParameter('targetAccuracy', 95));
+      }
+      updateTargetLabels();
+      renderDisplay('');
+
+      try {
+        const saved = window.Zest ? await Zest.loadState() : null;
+        if (saved) {
+          elapsedMs = saved.elapsedMs || 0;
+          keysTyped = saved.keysTyped || 0;
+
+          if (saved.submitted && saved.finalStats) {
+            submitted  = true;
+            finalStats = saved.finalStats;
+            renderDisplay(TARGET_TEXT); // show fully typed
+            setAppState('submitted');
+            showResults(false);
+            return;
+          }
+
+          if (saved.typedText) {
+            elInput.value = saved.typedText;
+            renderDisplay(saved.typedText);
+            updateStats(saved.typedText);
+            updateTimerDisplay();
+            elBtnStart.textContent = 'Resume';
+          }
+        }
+      } catch (_) { /* start fresh */ }
+    }
+
+    function updateTargetLabels() {
+      elRWpmTgt.textContent = `Target: ${targetWpm} WPM`;
+      elRAccTgt.textContent = `Target: ${targetAcc}%`;
+    }
+
+    // ── App state ─────────────────────────────────────────────────────────
+    function setAppState(s) {
+      appState = s;
+      const labels = {
+        idle:      '● Ready',
+        running:   '▶ Typing…',
+        complete:  '✓ Complete',
+        submitted: '✓ Submitted'
+      };
+      elStatePill.textContent   = labels[s] || s;
+      elStatePill.dataset.state = s;
+    }
+
+    // ── Timer ─────────────────────────────────────────────────────────────
+    function startTimer() {
+      startTime = Date.now() - elapsedMs;
+      timerHandle = setInterval(() => {
+        elapsedMs = Date.now() - startTime;
+        updateTimerDisplay();
+        updateStats(elInput.value);
+      }, 500);
+    }
+
+    function stopTimer() {
+      clearInterval(timerHandle);
+      timerHandle = null;
+      if (startTime) elapsedMs = Date.now() - startTime;
+    }
+
+    function updateTimerDisplay() {
+      const s = Math.floor(elapsedMs / 1000);
+      const m = Math.floor(s / 60);
+      elStatTime.textContent = `${m}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    // ── Stats ─────────────────────────────────────────────────────────────
+    function calcStats(typed) {
+      const len   = typed.length;
+      const total = TARGET_TEXT.length;
+      const pct   = total > 0 ? Math.round((len / total) * 100) : 0;
+
+      let correct = 0;
+      for (let i = 0; i < len; i++) {
+        if (typed[i] === TARGET_TEXT[i]) correct++;
+      }
+      const errors   = len - correct;
+      const accuracy = len > 0 ? Math.round((correct / len) * 100) : null;
+      const minutes  = elapsedMs / 60000;
+      const wpm      = (minutes > 0.05 && len > 0) ? Math.round((len / 5) / minutes) : null;
+
+      return { pct, accuracy, wpm, errors, len, total, correct };
+    }
+
+    function updateStats(typed) {
+      const { pct, accuracy, wpm, len, total } = calcStats(typed);
+      elStatProg.textContent     = `${pct}%`;
+      elStatWpm.textContent      = wpm      !== null ? String(wpm)      : '—';
+      elStatAcc.textContent      = accuracy !== null ? `${accuracy}%`   : '—';
+      elProgressPill.textContent = `${len} / ${total} chars`;
+      elProgressBar.style.width  = `${pct}%`;
+    }
+
+    // ── Display ───────────────────────────────────────────────────────────
+    function renderDisplay(typed) {
+      const frag = document.createDocumentFragment();
+
+      for (let i = 0; i < TARGET_TEXT.length; i++) {
+        const ch   = TARGET_TEXT[i];
+        const span = document.createElement('span');
+        span.className = 'char';
+
+        if (i < typed.length) {
+          span.className += typed[i] === ch ? ' char--correct' : ' char--incorrect';
+        } else if (i === typed.length) {
+          span.className += ' char--current';
+        } else {
+          span.className += ' char--pending';
+        }
+
+        span.textContent = ch;
+        frag.appendChild(span);
+      }
+
+      elDisplay.innerHTML = '';
+      elDisplay.appendChild(frag);
+
+      const cur = elDisplay.querySelector('.char--current');
+      if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    // ── Start / Restart ──────────────────────────────────────────────────
+    function startSession(reset) {
+      if (reset) {
+        elInput.value = '';
+        elapsedMs     = 0;
+        keysTyped     = 0;
+        finalStats    = null;
+        renderDisplay('');
+        updateStats('');
+        updateTimerDisplay();
+      }
+
+      elInput.disabled = false;
+      elInput.focus();
+      setAppState('running');
+      startTimer();
+
+      clearInterval(saveHandle);
+      saveHandle = setInterval(saveProgress, 10000);
+    }
+
+    elBtnStart.addEventListener('click', () => {
+      if (submitted) return;
+      const isResume = appState === 'idle' && elInput.value.length > 0;
+      startSession(!isResume);
+      elBtnStart.textContent = 'Start';
+    });
+
+    elBtnRestart.addEventListener('click', () => {
+      if (submitted) return;
+      stopTimer();
+      clearInterval(saveHandle);
+      setAppState('idle');
+      elInput.disabled = true;
+      elInput.value    = '';
+      elapsedMs        = 0;
+      keysTyped        = 0;
+      finalStats       = null;
+      elStatTime.textContent = '0:00';
+      elStatWpm.textContent  = '—';
+      elStatAcc.textContent  = '—';
+      elBtnStart.textContent = 'Start';
+      renderDisplay('');
+      updateStats('');
+      saveProgress();
+    });
+
+    // ── Input handling ────────────────────────────────────────────────────
+    elInput.addEventListener('keydown', e => {
+      if (appState !== 'running') return;
+      if (e.key.length === 1 || e.key === 'Enter') keysTyped++;
+    });
+
+    elInput.addEventListener('input', () => {
+      if (appState !== 'running') return;
+      const typed = elInput.value;
+
+      // Don't allow typing past the end of the passage
+      if (typed.length > TARGET_TEXT.length) {
+        elInput.value = typed.slice(0, TARGET_TEXT.length);
+        return;
+      }
+
+      renderDisplay(typed);
+      updateStats(typed);
+
+      if (typed === TARGET_TEXT) completeSession();
+    });
+
+    // ── Completion ────────────────────────────────────────────────────────
+    function completeSession() {
+      stopTimer();
+      clearInterval(saveHandle);
+      setAppState('complete');
+      elInput.disabled = true;
+
+      const typed = elInput.value;
+      const { accuracy, wpm, errors } = calcStats(typed);
+
+      finalStats = {
+        wpm:             wpm || 0,
+        accuracy:        accuracy || 0,
+        durationSeconds: Math.round(elapsedMs / 1000),
+        errors,
+        keysTyped
+      };
+
+      saveProgress();
+      showResults(true);
+    }
+
+    // ── Results overlay ───────────────────────────────────────────────────
+    function showResults(allowSubmit) {
+      if (!finalStats) return;
+
+      const { wpm, accuracy, durationSeconds, errors } = finalStats;
+      const score    = calcScore(wpm, accuracy);
+      const scorePct = Math.round(score * 100);
+      const m = Math.floor(durationSeconds / 60);
+      const s = durationSeconds % 60;
+
+      elRScore.textContent    = `${scorePct}%`;
+      elRWpm.textContent      = `${wpm} WPM`;
+      elRAccuracy.textContent = `${accuracy}%`;
+      elRTime.textContent     = `${m}:${String(s).padStart(2, '0')}`;
+      elRErrors.textContent   = String(errors);
+
+      const wpmMet = wpm >= targetWpm;
+      const accMet = accuracy >= targetAcc;
+
+      elRiWpm.className   = `result-item ${wpmMet ? 'met' : 'missed'}`;
+      elRiAcc.className   = `result-item ${accMet ? 'met' : 'missed'}`;
+      elRWpmTgt.className = `r-target ${wpmMet ? 'met' : 'missed'}`;
+      elRAccTgt.className = `r-target ${accMet ? 'met' : 'missed'}`;
+      elRWpmTgt.textContent = wpmMet
+        ? `✓ Target met (${targetWpm} WPM)`
+        : `✗ Target: ${targetWpm} WPM`;
+      elRAccTgt.textContent = accMet
+        ? `✓ Target met (${targetAcc}%)`
+        : `✗ Target: ${targetAcc}%`;
+
+      if (submitted) {
+        elBtnSubmit.disabled   = true;
+        elBtnSubmit.textContent = '✓ Submitted';
+        elBtnTryAgain.disabled  = true;
+        elSubmitNote.textContent = 'Your grade has been submitted to the gradebook.';
+      } else if (allowSubmit) {
+        elBtnSubmit.disabled    = false;
+        elBtnSubmit.textContent = 'Submit to Gradebook';
+        elBtnTryAgain.disabled  = false;
+        elSubmitNote.textContent = 'Review your results, then submit when ready.';
+      }
+
+      elOverlay.classList.add('show');
+    }
+
+    // ── Scoring ───────────────────────────────────────────────────────────
+    function calcScore(wpm, accuracy) {
+      const wpmRatio = Math.min(wpm / targetWpm, 1.0);
+      const accRatio = Math.min(accuracy / targetAcc, 1.0);
+      return Math.round((wpmRatio * 0.5 + accRatio * 0.5) * 100) / 100;
+    }
+
+    // ── Submit to gradebook ───────────────────────────────────────────────
+    elBtnSubmit.addEventListener('click', async () => {
+      if (!finalStats || submitted) return;
+
+      elBtnSubmit.disabled    = true;
+      elBtnSubmit.textContent = 'Submitting…';
+
+      const score = calcScore(finalStats.wpm, finalStats.accuracy);
+
+      try {
+        if (window.Zest) {
+          await Zest.submitScore(score, {
+            submission: finalStats,
+            comment: [
+              `WPM: ${finalStats.wpm} (target ${targetWpm})`,
+              `Accuracy: ${finalStats.accuracy}% (target ${targetAcc}%)`,
+              `Time: ${finalStats.durationSeconds}s`,
+              `Errors: ${finalStats.errors}`,
+              `Keys typed: ${finalStats.keysTyped}`
+            ].join(' | ')
+          });
+        }
+
+        submitted = true;
+        setAppState('submitted');
+        elBtnSubmit.textContent  = '✓ Submitted';
+        elBtnTryAgain.disabled   = true;
+        elSubmitNote.textContent = 'Your grade has been submitted to the gradebook.';
+        saveProgress();
+
+      } catch (_) {
+        elBtnSubmit.disabled    = false;
+        elBtnSubmit.textContent = 'Submit to Gradebook';
+        elSubmitNote.textContent = 'Submission failed — please try again.';
+      }
+    });
+
+    elBtnTryAgain.addEventListener('click', () => {
+      elOverlay.classList.remove('show');
+      elBtnRestart.click();
+    });
+
+    // ── State persistence ─────────────────────────────────────────────────
+    function saveProgress() {
+      if (!window.Zest) return;
+      try {
+        Zest.saveState({
+          typedText: elInput.value,
+          elapsedMs,
+          keysTyped,
+          submitted,
+          finalStats
+        });
+      } catch (_) {}
+    }
+
+    // ── Bootstrap ─────────────────────────────────────────────────────────
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+</body>
+</html>
